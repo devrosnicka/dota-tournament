@@ -1,0 +1,23 @@
+# Production. The deploy workflow copies this file to the server as compose.yaml,
+# next to a .env with APP_DOMAIN and the secrets (see README).
+name: dota-tournament
+
+services:
+    app:
+        image: ghcr.io/devrosnicka/dota-tournament:latest
+        restart: unless-stopped
+        env_file: .env
+        volumes:
+            - storage:/app/storage
+        networks:
+            - caddy_net
+        labels:
+            caddy: ${APP_DOMAIN:?Set APP_DOMAIN in .env}
+            caddy.reverse_proxy: '{{upstreams 8080}}'
+
+volumes:
+    storage:
+
+networks:
+    caddy_net:
+        external: true

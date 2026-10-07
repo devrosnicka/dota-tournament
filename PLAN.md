@@ -28,7 +28,7 @@ Zadání chtělo v DB jen hash tokenu a zároveň QR s odkazem u admina, což ne
 | Kontejner | FrankenPHP (jeden proces, uvnitř HTTP na portu 80) |
 
 - Základem je oficiální Laravel React starter kit. Odstraní se z něj uživatelské účty (Fortify, passkeys, nastavení, tabulka `users`), zůstane layout a komponenty shadcn/ui.
-- Lokálně není PHP ani Composer, proto vývoj poběží celý v Dockeru. `compose.yaml` s dev obrazem (PHP + Composer + Node), zdrojáky připojené jako volume, Vite dev server v kontejneru. Běžné příkazy zabalí `Makefile` (`make up`, `make test`, `make artisan …`).
+- Lokálně není PHP ani Composer, proto vývoj poběží celý v Dockeru. `compose.yaml` s dev obrazem (PHP + Composer + Node), zdrojáky připojené jako volume, Vite dev server v kontejneru. Běžné příkazy zabalí skript `./dev` (`./dev up`, `./dev test`, `./dev check`), `make` na hostiteli není.
 - Kód, identifikátory a commity budou anglicky. UI bude jen česky, bez i18n vrstvy, plus `lang/cs` pro validační hlášky. `APP_TIMEZONE=Europe/Prague`.
 
 ## 2. Architektura
@@ -124,7 +124,7 @@ resources/js/pages/{player,admin,tv}/…
 
 Každý milník končí zelenými testy.
 
-1. **Kostra:** starter kit bez účtů, Pest, Docker (dev + prod), CI a deploy workflow, čeština, layouty (mobil, admin, TV), `settings`, `audit_log`.
+1. **Kostra:** starter kit bez účtů, Pest, Docker (dev + prod), CI a deploy workflow, čeština, layout pro hráče, `players`, `settings`, `audit_log`. Layout admina přibude v milníku 2, TV v milníku 5.
 2. **Hráči a přihlášení:** registrace, login kódem, admin login, správa hráčů, přechod `registration → ranking`, feature testy přístupu.
 3. **Hodnocení:** drag & drop, `SeedingService`, admin přehled nasazení a kdo ještě neodeslal, přechod se snapshotem, testy anonymity.
 4. **Rozpis:** `FormatResolver`, `SitPlanner` (property testy), `ScheduleGenerator`, admin náhled se statistikami, prohození, publikace, hráčský rozpis.

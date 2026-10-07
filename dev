@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Development shortcuts. Everything runs in the dev container, the host needs only Docker.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+run() { docker compose run --rm app "$@"; }
+
+lint() {
+    run sh -c './vendor/bin/pint --test \
+        && ./vendor/bin/phpstan analyse --memory-limit=1G \
+        && php artisan wayfinder:generate --with-form >/dev/null \
+        && npm run check \
+        && npm run types:check'
+}
+
+command=${1:-help}
+shift || true
+
+case "$command" in
+    setup)
+        docker compose build
+        [ -f .env ] || cp .env.example .env
+        run composer install
+        run npm ci
+        grep -q '^APP_KEY=base64' .env || run php artisan key:generate
+        [ -f database/database.sqlite ] || touch database/database.sqlite
+        run php artisan migrate
+        ;;
+    up)
+        docker compose up -d
+        echo "App: http://localhost:8000"
+        ;;
+    down) docker compose down ;;
+    logs) docker compose logs -f "$@" ;;
+    shell) run bash ;;
+    artisan) run php artisan "$@" ;;
+    composer) run composer "$@" ;;
+    npm) run npm "$@" ;;
+    test) run ./vendor/bin/pest "$@" ;;
+    lint) lint ;;
+    fix) run sh -c './vendor/bin/pint && npm run check:fix' ;;
+    check) lint && run ./vendor/bin/pest ;;
+    prod-image) docker build --target prod -t dota-tournament:prod . ;;
+    *)
+        cat <<'HELP'
+Usage: ./dev <command> [args]
+
+  setup        build the dev image, install dependencies, prepare .env and the database
+  up | down    start / stop the app (http://localhost:8000) and the Vite dev server
+  logs         follow container logs
+  test [args]  run Pest, e.g. ./dev test --filter=Phase
+  lint         code style, static analysis, frontend lint and types (as in CI)
+  fix          auto-fix formatting
+  check        lint + tests
+  artisan | composer | npm [args]
+  shell        bash in the dev container
+  prod-image   build the production image locally
+HELP
+        ;;
+esac
