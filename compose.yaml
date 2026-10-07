@@ -1,0 +1,26 @@
+# Local development. PHP, Composer and Node run in the dev image, source is bind-mounted.
+name: dota-tournament
+
+x-dev: &dev
+    build:
+        context: .
+        target: dev
+    image: dota-tournament:dev
+    user: '${UID:-1000}:${GID:-1000}'
+    volumes:
+        - .:/app
+
+services:
+    app:
+        <<: *dev
+        command: frankenphp php-server --root public/ --listen :8000
+        ports:
+            - '${APP_PORT:-8000}:8000'
+
+    vite:
+        <<: *dev
+        command: npm run dev
+        ports:
+            - '${VITE_PORT:-5173}:5173'
+        depends_on:
+            - app

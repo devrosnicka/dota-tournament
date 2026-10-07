@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Tournament\AuditLogger;
+use App\Tournament\TournamentSettings;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +17,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->scoped(TournamentSettings::class);
+        $this->app->scoped(AuditLogger::class);
     }
 
     /**
@@ -33,18 +36,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Date::use(CarbonImmutable::class);
 
+        Model::shouldBeStrict(! app()->isProduction());
+
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
-        );
-
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
-            : null,
         );
     }
 }

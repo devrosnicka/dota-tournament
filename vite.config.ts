@@ -29,6 +29,13 @@ export default defineConfig({
         }),
     ]),
     server: {
+        // Vite runs inside the dev container; the browser reaches it via localhost.
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: true,
+        hmr: {
+            host: 'localhost',
+        },
         watch: {
             ignored: [
                 '**/.agents/**',
@@ -64,6 +71,7 @@ export default defineConfig({
         singleAttributePerLine: false,
         htmlWhitespaceSensitivity: 'css',
         ignorePatterns: [
+            '*.md',
             '.github/**',
             'composer.json',
             'resources/js/components/ui/*',

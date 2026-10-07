@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Tournament\TournamentSettings;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -15,6 +16,8 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    public function __construct(private readonly TournamentSettings $settings) {}
 
     /**
      * Determines the current asset version.
@@ -35,13 +38,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $phase = $this->settings->phase();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'auth' => [
-                'user' => $request->user(),
+            'phase' => [
+                'value' => $phase->value,
+                'label' => $phase->label(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
 }
