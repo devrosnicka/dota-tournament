@@ -81,3 +81,14 @@ Na serveru v adresáři nasazení:
 ```
 
 Databáze leží na volume `dota-tournament_storage` v `/app/storage/database/database.sqlite`.
+
+### Reset turnaje
+
+Po zkušebním kole se dá celý turnaj smazat (hráči, hodnocení, rozpis, výsledky, finále, nastavení i audit log) a začít znovu registrací. Na serveru v adresáři nasazení:
+
+```sh
+./backup.sh
+docker compose exec app php artisan tournament:reset   # zeptá se na potvrzení
+```
+
+Hráči ze zkušebního kola se tím odhlásí. Čísla hráčů pokračují dál, takže stará přihlášení nemůžou patřit novým hráčům. Admin zůstane přihlášený.
