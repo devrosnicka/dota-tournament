@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { formatTime } from '@/lib/format';
-import { destroy, loginCode, update } from '@/routes/admin/players';
+import { destroy, loginCode, update, withdraw } from '@/routes/admin/players';
 
 type PlayerRow = {
     id: number;
@@ -33,16 +33,20 @@ type PlayerRow = {
     loginCode: { code: string; expiresAt: string } | null;
 };
 
+type Withdrawal = { firstRound: number; lastRound: number };
+
 type Props = {
     players: PlayerRow[];
     canDelete: boolean;
     showRankingStatus: boolean;
+    withdrawal: Withdrawal | null;
 };
 
 export default function Players({
     players,
     canDelete,
     showRankingStatus,
+    withdrawal,
 }: Props) {
     return (
         <>
@@ -68,6 +72,7 @@ export default function Players({
                                     player={player}
                                     canDelete={canDelete}
                                     showRankingStatus={showRankingStatus}
+                                    withdrawal={withdrawal}
                                 />
                             ))}
                         </ul>
@@ -82,10 +87,12 @@ function PlayerItem({
     player,
     canDelete,
     showRankingStatus,
+    withdrawal,
 }: {
     player: PlayerRow;
     canDelete: boolean;
     showRankingStatus: boolean;
+    withdrawal: Withdrawal | null;
 }) {
     return (
         <li className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
@@ -129,6 +136,9 @@ function PlayerItem({
                     Kód
                 </Button>
                 <RenameDialog player={player} />
+                {withdrawal && player.status === 'active' && (
+                    <WithdrawDialog player={player} withdrawal={withdrawal} />
+                )}
                 {canDelete && (
                     <ConfirmDialog
                         trigger={
@@ -187,6 +197,76 @@ function RenameDialog({ player }: { player: PlayerRow }) {
                             <DialogFooter>
                                 <Button type="submit" disabled={processing}>
                                     Uložit
+                                </Button>
+                            </DialogFooter>
+                        </>
+                    )}
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+function WithdrawDialog({
+    player,
+    withdrawal,
+}: {
+    player: PlayerRow;
+    withdrawal: Withdrawal;
+}) {
+    const [open, setOpen] = useState(false);
+    const rounds = Array.from(
+        { length: withdrawal.lastRound - withdrawal.firstRound + 2 },
+        (_, index) => withdrawal.firstRound + index,
+    );
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button size="sm" variant="ghost">
+                    Odstoupení
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Odstoupení hráče {player.nick}</DialogTitle>
+                </DialogHeader>
+                <Form
+                    {...withdraw.form(player.id)}
+                    options={{ preserveScroll: true }}
+                    onSuccess={() => setOpen(false)}
+                    className="grid gap-4"
+                >
+                    {({ processing, errors }) => (
+                        <>
+                            <p className="text-sm text-muted-foreground">
+                                Hráč si ponechá získané body, ale do finále
+                                nepostoupí. Kola od zvoleného dál se přegenerují
+                                pro zbylé hráče, odehraná kola se nemění. Vrátit
+                                to nejde.
+                            </p>
+                            <select
+                                name="round"
+                                aria-label="Od kola"
+                                defaultValue={withdrawal.firstRound}
+                                className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
+                            >
+                                {rounds.map((round) => (
+                                    <option key={round} value={round}>
+                                        {round > withdrawal.lastRound
+                                            ? 'po základní části (bez přegenerování)'
+                                            : `od ${round}. kola`}
+                                    </option>
+                                ))}
+                            </select>
+                            <InputError message={errors.round} />
+                            <DialogFooter>
+                                <Button
+                                    type="submit"
+                                    variant="destructive"
+                                    disabled={processing}
+                                >
+                                    Odstoupit
                                 </Button>
                             </DialogFooter>
                         </>

@@ -46,6 +46,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('players/{player}', [Admin\PlayerController::class, 'update'])->name('players.update');
         Route::delete('players/{player}', [Admin\PlayerController::class, 'destroy'])->name('players.destroy');
         Route::post('players/{player}/login-code', [Admin\PlayerController::class, 'loginCode'])->name('players.login-code');
+        Route::post('players/{player}/withdraw', [Admin\WithdrawalController::class, 'store'])->name('players.withdraw');
 
         Route::get('seeding', Admin\SeedingController::class)->name('seeding');
 

@@ -9,6 +9,7 @@ use App\Tournament\AuditLogger;
 use App\Tournament\LoginCodes;
 use App\Tournament\Rankings;
 use App\Tournament\TournamentSettings;
+use App\Tournament\Withdrawals;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -17,7 +18,7 @@ use Inertia\Response;
 
 class PlayerController extends Controller
 {
-    public function index(TournamentSettings $settings, Rankings $rankings): Response
+    public function index(TournamentSettings $settings, Rankings $rankings, Withdrawals $withdrawals): Response
     {
         $submitted = $rankings->submittedPlayerIds();
         $players = Player::query()->orderBy('nick')->get()->map(fn (Player $player) => [
@@ -36,6 +37,10 @@ class PlayerController extends Controller
             'players' => $players,
             'canDelete' => $this->canDelete($settings),
             'showRankingStatus' => $settings->phase() === Phase::Ranking,
+            'withdrawal' => $withdrawals->canWithdraw() ? [
+                'firstRound' => $withdrawals->firstAllowedRound(),
+                'lastRound' => $withdrawals->lastRound(),
+            ] : null,
         ]);
     }
 
