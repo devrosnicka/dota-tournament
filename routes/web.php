@@ -21,6 +21,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/', Player\HomeController::class)->name('home');
+    Route::get('rules', Player\RulesController::class)->name('rules');
     Route::get('device', [Player\DeviceLoginController::class, 'show'])->name('device');
     Route::post('device', [Player\DeviceLoginController::class, 'store'])->name('device.store');
     Route::post('logout', [Player\LoginController::class, 'destroy'])->name('logout');

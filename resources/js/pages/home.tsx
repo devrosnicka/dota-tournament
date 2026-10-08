@@ -8,6 +8,7 @@ import {
     final as finalPage,
     ranking as rankingPage,
     results,
+    rules,
     standings,
 } from '@/routes';
 import { show as showMatch } from '@/routes/matches';
@@ -102,6 +103,12 @@ export default function Home({ ranking, groupStage }: Props) {
                     </CardContent>
                 </Card>
                 {groupStage && <GroupStageCard groupStage={groupStage} />}
+                <Link
+                    href={rules()}
+                    className="text-center text-sm text-muted-foreground underline underline-offset-4"
+                >
+                    Jak turnaj funguje? Pravidla a FAQ
+                </Link>
             </div>
         </>
     );

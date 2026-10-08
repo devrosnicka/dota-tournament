@@ -1,0 +1,395 @@
+import { Head, usePage } from '@inertiajs/react';
+import { ChevronDown } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import type { Phase } from '@/types';
+
+type Props = {
+    rounds: number;
+    players: number;
+    format: { name: string; matches: number; sitting: number } | null;
+    finalists: number;
+};
+
+const phases: { value: Phase; label: string; text: string }[] = [
+    {
+        value: 'registration',
+        label: 'Registrace',
+        text: 'Zaregistruješ se přezdívkou a kódem, který znají jen účastníci.',
+    },
+    {
+        value: 'ranking',
+        label: 'Hodnocení hráčů',
+        text: 'Seřadíš ostatní od nejlepšího po nejhoršího. Z toho vznikne nasazení.',
+    },
+    {
+        value: 'schedule_review',
+        label: 'Příprava rozpisu',
+        text: 'Admin vygeneruje rozpis všech kol najednou a zveřejní ho.',
+    },
+    {
+        value: 'group_stage',
+        label: 'Základní část',
+        text: 'Hraje se v pokaždé jinak namíchaných týmech, každý sbírá body sám za sebe.',
+    },
+    {
+        value: 'final_draft',
+        label: 'Draft finále',
+        text: 'Dva nejlepší jsou kapitáni a vybírají si hráče do týmů.',
+    },
+    {
+        value: 'final',
+        label: 'Finále',
+        text: 'Tým proti týmu 5v5 na dvě vítězné mapy (Bo3).',
+    },
+    {
+        value: 'finished',
+        label: 'Vyhlášení',
+        text: 'Trofeje pro vítězný tým finále a pro celkového šampiona.',
+    },
+];
+
+const formats = [
+    { players: 10, format: '1× 5v5', sitting: 0 },
+    { players: 11, format: '1× 5v5', sitting: 1 },
+    { players: 12, format: '2× 3v3', sitting: 0 },
+    { players: 13, format: '2× 3v3', sitting: 1 },
+    { players: 14, format: '2× 3v3', sitting: 2 },
+    { players: 15, format: '2× 3v3', sitting: 3 },
+    { players: 16, format: '2× 4v4', sitting: 0 },
+];
+
+const sections = [
+    ['prubeh', 'Průběh'],
+    ['hodnoceni', 'Hodnocení'],
+    ['zakladni-cast', 'Základní část'],
+    ['tabulka', 'Tabulka a shody'],
+    ['finale', 'Finále'],
+    ['celkove-poradi', 'Celkové pořadí'],
+    ['faq', 'FAQ'],
+] as const;
+
+export default function Rules({ rounds, players, format, finalists }: Props) {
+    const { phase } = usePage().props;
+
+    return (
+        <>
+            <Head title="Pravidla" />
+            <div className="grid grid-cols-1 gap-4">
+                <h1 className="text-2xl font-bold">Pravidla turnaje</h1>
+                <nav className="flex flex-wrap gap-2 text-sm">
+                    {sections.map(([id, label]) => (
+                        <a
+                            key={id}
+                            href={`#${id}`}
+                            className="rounded-full border px-3 py-1 hover:bg-accent"
+                        >
+                            {label}
+                        </a>
+                    ))}
+                </nav>
+
+                <Section id="prubeh" title="Průběh turnaje">
+                    <ol className="grid gap-2">
+                        {phases.map((p, index) => (
+                            <li
+                                key={p.value}
+                                className={cn(
+                                    'flex gap-3 rounded-md p-2',
+                                    p.value === phase.value &&
+                                        'bg-primary/10 ring-1 ring-primary',
+                                )}
+                            >
+                                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">
+                                    {index + 1}
+                                </span>
+                                <span>
+                                    <strong>{p.label}</strong>
+                                    {p.value === phase.value && (
+                                        <span className="ml-2 text-xs text-primary">
+                                            právě teď
+                                        </span>
+                                    )}
+                                    <br />
+                                    <span className="text-muted-foreground">
+                                        {p.text}
+                                    </span>
+                                </span>
+                            </li>
+                        ))}
+                    </ol>
+                </Section>
+
+                <Section id="hodnoceni" title="Hodnocení hráčů a nasazení">
+                    <p>
+                        Každý seřadí všechny ostatní hráče od nejlepšího po
+                        nejhoršího, sebe nehodnotí. Pořadí můžeš měnit, dokud
+                        admin hodnocení neuzavře. Odeslání není povinné, ale čím
+                        víc lidí hodnotí, tím vyrovnanější budou týmy.
+                    </p>
+                    <p>
+                        Z pozic, které ti dali ostatní, se spočítá průměr. Od
+                        pěti hodnocení se nejlepší a nejhorší pozice nepočítá,
+                        aby jeden výkyv nic nezkreslil. Podle průměru vznikne{' '}
+                        <strong>nasazení</strong>, které slouží k vyvažování
+                        týmů a jako poslední kritérium při shodě v tabulce.
+                    </p>
+                    <p>
+                        <strong>Hodnocení je anonymní.</strong> Svoje pořadí
+                        vidíš jen ty, cizí neuvidí nikdo. Admin vidí jen
+                        výsledné nasazení, ne kdo jak hodnotil.
+                    </p>
+                </Section>
+
+                <Section id="zakladni-cast" title="Základní část">
+                    <p>
+                        Hraje se{' '}
+                        <strong>
+                            {rounds}{' '}
+                            {rounds === 1
+                                ? 'kolo'
+                                : rounds < 5
+                                  ? 'kola'
+                                  : 'kol'}
+                        </strong>
+                        . Formát kola záleží na počtu hráčů:
+                    </p>
+                    <table className="w-full text-sm">
+                        <thead className="text-left text-muted-foreground">
+                            <tr className="border-b">
+                                <th className="py-1 font-medium">Hráčů</th>
+                                <th className="py-1 font-medium">
+                                    Zápasy v kole
+                                </th>
+                                <th className="py-1 font-medium">Sedí</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {formats.map((row) => (
+                                <tr
+                                    key={row.players}
+                                    className={cn(
+                                        'border-b last:border-0',
+                                        row.players === players &&
+                                            'bg-primary/10 font-semibold',
+                                    )}
+                                >
+                                    <td className="py-1">{row.players}</td>
+                                    <td className="py-1">{row.format}</td>
+                                    <td className="py-1">{row.sitting}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    {format && (
+                        <p className="text-sm text-muted-foreground">
+                            Teď je aktivních {players} hráčů, takže se hraje{' '}
+                            {format.matches}× {format.name}
+                            {format.sitting > 0
+                                ? ` a v každém kole sedí ${format.sitting}`
+                                : ''}
+                            .
+                        </p>
+                    )}
+                    <ul className="list-disc space-y-1 pl-5">
+                        <li>
+                            <strong>Body:</strong> výhra 1, prohra 0, sezení
+                            0,5.
+                        </li>
+                        <li>
+                            <strong>Týmy</strong> se každé kolo mění. Generátor
+                            hlídá, abys nehrál pořád se stejnými lidmi a aby
+                            zápasy nebyly jednostranné. Přesně vyrovnané ale
+                            schválně nejsou.
+                        </li>
+                        <li>
+                            <strong>Sezení</strong> se rozděluje rovnoměrně:
+                            nikdo nesedí podruhé, dokud všichni neseděli aspoň
+                            jednou, a pokud to jde, nikdo nesedí dvě kola po
+                            sobě. Kdo sedí, určí los, ne nasazení.
+                        </li>
+                        <li>
+                            <strong>Výsledek</strong> zadává kdokoli z hráčů
+                            zápasu: kdo vyhrál a killy obou týmů podle skóre ve
+                            hře. Dokud admin kolo neuzavře, jde výsledek
+                            opravit.
+                        </li>
+                        <li>
+                            <strong>Rozdíl killů</strong> je součet (killy tvého
+                            týmu − killy soupeře) přes všechny tvoje zápasy.
+                        </li>
+                    </ul>
+                </Section>
+
+                <Section id="tabulka" title="Tabulka a shody">
+                    <p>
+                        Pořadí určují body, při shodě rozdíl killů a pak
+                        nasazení. Do finále postupuje{' '}
+                        <strong>{finalists} nejlepších</strong> aktivních hráčů.
+                    </p>
+                    <p>
+                        Jediná výjimka je shoda přímo na hranici postupu (10. a
+                        11. místo). Tu rozhodne <strong>rozstřel 1v1</strong> se
+                        Shadow Fiendem v módu 1v1 Solo Mid. Rozstřel určí, kdo
+                        postupuje, a pořadí mezi postupujícími dál řídí
+                        nasazení.
+                    </p>
+                </Section>
+
+                <Section id="finale" title="Finále">
+                    <ol className="list-decimal space-y-1 pl-5">
+                        <li>
+                            <strong>Kapitáni</strong> jsou 1. a 2. místo
+                            základní části.
+                        </li>
+                        <li>
+                            <strong>Výhoda:</strong> kapitán z 1. místa si
+                            vybere buď první výběr hráče, nebo stranu a první
+                            pick na 1. mapě. Druhý kapitán dostane to druhé.
+                        </li>
+                        <li>
+                            <strong>Výběr hráčů</strong> probíhá hadově: A, B,
+                            B, A, A, B, B, A (A = kapitán s prvním výběrem).
+                            Kapitáni vybírají na mobilu, ostatní to sledují na
+                            TV.
+                        </li>
+                        <li>
+                            <strong>Role:</strong> v každém týmu si hráči včetně
+                            kapitána volí pozici 1–5 v pořadí podle umístění v
+                            základní části. Každá pozice je v týmu jen jednou.
+                        </li>
+                        <li>
+                            <strong>Série Bo3:</strong> 3. mapa se hraje jen za
+                            stavu 1:1. Před 2. a 3. mapou si tým, který prohrál
+                            předchozí mapu, vybere stranu, nebo první pick, a
+                            druhý tým dostane to druhé.
+                        </li>
+                        <li>
+                            <strong>Body z finále:</strong> +1 za každou mapu
+                            vyhranou tvým týmem a +1 za výhru v sérii. Za 2:0
+                            tedy vítězové dostanou 3 body a poražení 0, za 2:1
+                            vítězové 3 a poražení 1.
+                        </li>
+                    </ol>
+                </Section>
+
+                <Section id="celkove-poradi" title="Celkové pořadí a trofeje">
+                    <p>
+                        Celkové body = body ze základní části + body z finále.
+                        Hrají se dvě trofeje:
+                    </p>
+                    <ul className="list-disc space-y-1 pl-5">
+                        <li>
+                            <strong>Vítězný tým</strong> – vítězové finále.
+                        </li>
+                        <li>
+                            <strong>Celkový šampion</strong> – 1. místo
+                            celkového pořadí. Při shodě rozhodují body z finále,
+                            pak rozstřel 1v1 se Shadow Fiendem (při třech a více
+                            hráčích pavouk s nasazením losem).
+                        </li>
+                    </ul>
+                    <p className="text-sm text-muted-foreground">
+                        Ostatní shody v celkovém pořadí jsou sdílené.
+                    </p>
+                </Section>
+
+                <Section id="faq" title="Časté otázky">
+                    <div className="grid gap-2">
+                        <Faq question="Jak se přihlásím na jiném zařízení?">
+                            Na zařízení, kde jsi přihlášený, otevři Menu →
+                            Přihlásit jiné zařízení a vygeneruj kód. Na druhém
+                            zařízení ho zadej na přihlašovací stránce. Kód platí
+                            15 minut a jde použít jen jednou. Když přihlášení
+                            nemáš nikde, kód ti vygeneruje admin.
+                        </Faq>
+                        <Faq question="Otevřel jsem stránku v Messengeru a v prohlížeči nejsem přihlášený.">
+                            Aplikace v Messengeru nebo WhatsAppu mají vlastní
+                            prohlížeč. Vygeneruj si v nich kód pro jiné zařízení
+                            a přihlas se jím v normálním prohlížeči.
+                        </Faq>
+                        <Faq question="Uvidí někdo, jak jsem koho ohodnotil?">
+                            Ne. Svoje pořadí vidíš jen ty. Admin vidí jen
+                            výsledné nasazení všech hráčů, ne jednotlivá
+                            hodnocení.
+                        </Faq>
+                        <Faq question="Musím hodnocení odeslat?">
+                            Nemusíš, ale pomůže to vyrovnanějším týmům. Dokud
+                            admin hodnocení neuzavře, můžeš pořadí měnit a
+                            ukládat znovu.
+                        </Faq>
+                        <Faq question="Kde zjistím, s kým a kdy hraju?">
+                            Na úvodní stránce vidíš svůj zápas v aktuálním kole
+                            a v Rozpisu všechna kola. Tvoje zápasy a sezení jsou
+                            zvýrazněné.
+                        </Faq>
+                        <Faq question="Kdo zadává výsledek a co když se spletu?">
+                            Kdokoli z hráčů zápasu, stačí jeden. Dokud admin
+                            kolo neuzavře, můžeš výsledek opravit sám, potom
+                            řekni adminovi. Každý zápis se ukládá i s tím, kdo
+                            ho zadal.
+                        </Faq>
+                        <Faq question="Kdy začne zápas?">
+                            Až jsou u počítačů všichni jeho hráči. Pozdní
+                            příchody se neřeší, zápas prostě počká.
+                        </Faq>
+                        <Faq question="Co dostanu, když sedím?">
+                            0,5 bodu. Sezení se rozděluje rovnoměrně a losem,
+                            takže nikoho nezvýhodní ani neznevýhodní.
+                        </Faq>
+                        <Faq question="Musím odejít dřív. Co se stane?">
+                            Dej vědět adminovi. Získané body ti zůstanou, ale do
+                            finále už nepostoupíš. Zbývající neodehraná kola se
+                            přegenerují pro ostatní.
+                        </Faq>
+                        <Faq question="Proč nejsou týmy úplně vyrovnané?">
+                            Schválně. Generátor jen hlídá, aby zápasy nebyly
+                            jednostranné. Kdyby byly týmy přesně vyrovnané,
+                            rozhodovala by o tabulce hlavně náhoda.
+                        </Faq>
+                    </div>
+                </Section>
+            </div>
+        </>
+    );
+}
+
+function Section({
+    id,
+    title,
+    children,
+}: {
+    id: string;
+    title: string;
+    children: ReactNode;
+}) {
+    return (
+        <Card id={id} className="scroll-mt-20">
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 leading-relaxed">
+                {children}
+            </CardContent>
+        </Card>
+    );
+}
+
+function Faq({
+    question,
+    children,
+}: {
+    question: string;
+    children: ReactNode;
+}) {
+    return (
+        <details className="group rounded-md border px-3 py-2">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 font-medium">
+                {question}
+                <ChevronDown className="size-4 shrink-0 transition-transform group-open:rotate-180" />
+            </summary>
+            <p className="mt-2 text-muted-foreground">{children}</p>
+        </details>
+    );
+}
