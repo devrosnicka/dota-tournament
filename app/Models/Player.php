@@ -7,6 +7,8 @@ use Carbon\CarbonImmutable;
 use Database\Factories\PlayerFactory;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,8 +35,13 @@ class Player extends Model implements AuthenticatableContract
         'nick',
     ];
 
+    /**
+     * The seeding is visible to the admin only (SPEC §1.2).
+     */
     protected $hidden = [
         'login_code',
+        'seed_rank',
+        'seed_score',
     ];
 
     /**
@@ -48,6 +55,15 @@ class Player extends Model implements AuthenticatableContract
     public function getRememberTokenName(): string
     {
         return '';
+    }
+
+    /**
+     * @param  Builder<Player>  $query
+     */
+    #[Scope]
+    protected function active(Builder $query): void
+    {
+        $query->where('status', PlayerStatus::Active);
     }
 
     protected function casts(): array

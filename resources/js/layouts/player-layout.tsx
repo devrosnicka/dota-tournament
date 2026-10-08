@@ -12,7 +12,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { useFlashToast } from '@/hooks/use-flash-toast';
-import { device, home, logout } from '@/routes';
+import { device, home, logout, ranking } from '@/routes';
 import { dashboard } from '@/routes/admin';
 
 export default function PlayerLayout({ children }: { children: ReactNode }) {
@@ -22,6 +22,9 @@ export default function PlayerLayout({ children }: { children: ReactNode }) {
 
     const links = [
         { label: 'Domů', href: home() },
+        ...(phase.value !== 'registration'
+            ? [{ label: 'Hodnocení hráčů', href: ranking() }]
+            : []),
         { label: 'Přihlásit jiné zařízení', href: device() },
         ...(auth.isAdmin ? [{ label: 'Administrace', href: dashboard() }] : []),
     ];

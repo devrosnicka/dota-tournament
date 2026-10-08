@@ -2,7 +2,9 @@
 
 namespace App\Tournament;
 
+use App\Domain\Schedule\FormatResolver;
 use App\Enums\Phase;
+use App\Models\Player;
 use App\Tournament\Exceptions\PhaseTransitionBlocked;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +18,7 @@ final class PhaseManager
     public function __construct(
         private readonly TournamentSettings $settings,
         private readonly AuditLogger $audit,
+        private readonly Rankings $rankings,
     ) {}
 
     public function current(): Phase
@@ -32,6 +35,7 @@ final class PhaseManager
     {
         return match ($this->current()) {
             Phase::Registration => [],
+            Phase::Ranking => $this->playerCountBlockers(),
             Phase::Finished => ['Turnaj už skončil.'],
             default => ['Tento přechod zatím není implementovaný.'],
         };
@@ -48,6 +52,11 @@ final class PhaseManager
                 throw new PhaseTransitionBlocked($blockers ?: ['Turnaj už skončil.']);
             }
 
+            match ($from) {
+                Phase::Ranking => $this->rankings->snapshot(),
+                default => null,
+            };
+
             $this->settings->setPhase($to);
             $this->audit->admin('phase.advanced', ['from' => $from->value, 'to' => $to->value]);
 
@@ -62,6 +71,7 @@ final class PhaseManager
     {
         return match ($this->current()) {
             Phase::Ranking => Phase::Registration,
+            Phase::ScheduleReview => Phase::Ranking,
             default => null,
         };
     }
@@ -72,10 +82,34 @@ final class PhaseManager
             $from = $this->current();
             $to = $this->revertTarget() ?? throw new PhaseTransitionBlocked(['Z této fáze se nelze vrátit.']);
 
+            match ($from) {
+                Phase::ScheduleReview => $this->rankings->clearSnapshot(),
+                default => null,
+            };
+
             $this->settings->setPhase($to);
             $this->audit->admin('phase.reverted', ['from' => $from->value, 'to' => $to->value]);
 
             return $to;
         });
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function playerCountBlockers(): array
+    {
+        $count = Player::query()->active()->count();
+
+        if ($count < FormatResolver::MIN_PLAYERS || $count > FormatResolver::MAX_PLAYERS) {
+            return [sprintf(
+                'Turnaj potřebuje %d až %d aktivních hráčů, teď jich je %d.',
+                FormatResolver::MIN_PLAYERS,
+                FormatResolver::MAX_PLAYERS,
+                $count,
+            )];
+        }
+
+        return [];
     }
 }

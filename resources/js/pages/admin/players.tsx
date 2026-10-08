@@ -29,15 +29,21 @@ type PlayerRow = {
     status: 'active' | 'withdrawn';
     withdrawnFromRound: number | null;
     registeredAt: string | null;
+    rankingSubmitted: boolean;
     loginCode: { code: string; expiresAt: string } | null;
 };
 
 type Props = {
     players: PlayerRow[];
     canDelete: boolean;
+    showRankingStatus: boolean;
 };
 
-export default function Players({ players, canDelete }: Props) {
+export default function Players({
+    players,
+    canDelete,
+    showRankingStatus,
+}: Props) {
     return (
         <>
             <Head title="Hráči" />
@@ -61,6 +67,7 @@ export default function Players({ players, canDelete }: Props) {
                                     key={player.id}
                                     player={player}
                                     canDelete={canDelete}
+                                    showRankingStatus={showRankingStatus}
                                 />
                             ))}
                         </ul>
@@ -74,14 +81,27 @@ export default function Players({ players, canDelete }: Props) {
 function PlayerItem({
     player,
     canDelete,
+    showRankingStatus,
 }: {
     player: PlayerRow;
     canDelete: boolean;
+    showRankingStatus: boolean;
 }) {
     return (
         <li className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
             <div className="flex min-w-0 flex-1 items-center gap-2">
                 <span className="truncate font-medium">{player.nick}</span>
+                {showRankingStatus && (
+                    <Badge
+                        variant={
+                            player.rankingSubmitted ? 'secondary' : 'outline'
+                        }
+                    >
+                        {player.rankingSubmitted
+                            ? 'hodnocení odesláno'
+                            : 'bez hodnocení'}
+                    </Badge>
+                )}
                 {player.status === 'withdrawn' && (
                     <Badge variant="outline">
                         odstoupil od {player.withdrawnFromRound}. kola

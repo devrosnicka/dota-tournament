@@ -2,6 +2,7 @@
 
 namespace App\Tournament;
 
+use App\Domain\Support\Lottery;
 use App\Enums\Phase;
 use App\Models\Setting;
 
@@ -24,6 +25,21 @@ final class TournamentSettings
     public function setPhase(Phase $phase): void
     {
         $this->set('phase', $phase->value);
+    }
+
+    /**
+     * Deterministic lottery from a random seed created on first use.
+     */
+    public function lottery(): Lottery
+    {
+        $seed = $this->get('lottery_seed');
+
+        if (! is_int($seed)) {
+            $seed = random_int(1, PHP_INT_MAX);
+            $this->set('lottery_seed', $seed);
+        }
+
+        return new Lottery($seed);
     }
 
     public function get(string $key, mixed $default = null): mixed

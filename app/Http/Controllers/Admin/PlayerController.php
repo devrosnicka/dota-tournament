@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Player;
 use App\Tournament\AuditLogger;
 use App\Tournament\LoginCodes;
+use App\Tournament\Rankings;
 use App\Tournament\TournamentSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,14 +17,16 @@ use Inertia\Response;
 
 class PlayerController extends Controller
 {
-    public function index(TournamentSettings $settings): Response
+    public function index(TournamentSettings $settings, Rankings $rankings): Response
     {
+        $submitted = $rankings->submittedPlayerIds();
         $players = Player::query()->orderBy('nick')->get()->map(fn (Player $player) => [
             'id' => $player->id,
             'nick' => $player->nick,
             'status' => $player->status->value,
             'withdrawnFromRound' => $player->withdrawn_from_round,
             'registeredAt' => $player->created_at?->toIso8601String(),
+            'rankingSubmitted' => in_array($player->id, $submitted, true),
             'loginCode' => $player->login_code !== null && $player->login_code_expires_at?->isFuture()
                 ? ['code' => $player->login_code, 'expiresAt' => $player->login_code_expires_at->toIso8601String()]
                 : null,
@@ -32,6 +35,7 @@ class PlayerController extends Controller
         return Inertia::render('admin/players', [
             'players' => $players,
             'canDelete' => $this->canDelete($settings),
+            'showRankingStatus' => $settings->phase() === Phase::Ranking,
         ]);
     }
 

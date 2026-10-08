@@ -21,6 +21,7 @@ type Props = {
     blockers: string[];
     revertTo: PhaseInfo | null;
     activePlayers: number;
+    rankingsSubmitted: number | null;
 };
 
 export default function Dashboard({
@@ -29,6 +30,7 @@ export default function Dashboard({
     blockers,
     revertTo,
     activePlayers,
+    rankingsSubmitted,
 }: Props) {
     const { phase } = usePage().props;
     const currentIndex = phases.findIndex((p) => p.value === phase.value);
@@ -125,6 +127,12 @@ export default function Dashboard({
                         <div className="text-4xl font-bold">
                             {activePlayers}
                         </div>
+                        {rankingsSubmitted !== null && (
+                            <p className="text-sm text-muted-foreground">
+                                Hodnocení odeslalo {rankingsSubmitted} z{' '}
+                                {activePlayers}.
+                            </p>
+                        )}
                         <Button variant="outline" asChild>
                             <Link href={players()}>Správa hráčů</Link>
                         </Button>

@@ -20,6 +20,8 @@ Route::middleware('auth')->group(function () {
     Route::get('device', [Player\DeviceLoginController::class, 'show'])->name('device');
     Route::post('device', [Player\DeviceLoginController::class, 'store'])->name('device.store');
     Route::post('logout', [Player\LoginController::class, 'destroy'])->name('logout');
+    Route::get('ranking', [Player\RankingController::class, 'show'])->name('ranking');
+    Route::post('ranking', [Player\RankingController::class, 'store'])->name('ranking.store');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -36,5 +38,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('players/{player}', [Admin\PlayerController::class, 'update'])->name('players.update');
         Route::delete('players/{player}', [Admin\PlayerController::class, 'destroy'])->name('players.destroy');
         Route::post('players/{player}/login-code', [Admin\PlayerController::class, 'loginCode'])->name('players.login-code');
+
+        Route::get('seeding', Admin\SeedingController::class)->name('seeding');
     });
 });
