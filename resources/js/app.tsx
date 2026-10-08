@@ -2,13 +2,24 @@ import { createInertiaApp } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
+import AdminLayout from '@/layouts/admin-layout';
+import GuestLayout from '@/layouts/guest-layout';
 import PlayerLayout from '@/layouts/player-layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Dota LAN turnaj';
 
 void createInertiaApp({
     title: (title) => (title ? `${title} · ${appName}` : appName),
-    layout: () => PlayerLayout,
+    layout: (name) => {
+        switch (true) {
+            case name.startsWith('auth/') || name === 'admin/login':
+                return GuestLayout;
+            case name.startsWith('admin/'):
+                return AdminLayout;
+            default:
+                return PlayerLayout;
+        }
+    },
     strictMode: true,
     withApp(app) {
         return (

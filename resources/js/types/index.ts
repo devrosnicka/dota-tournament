@@ -8,3 +8,10 @@ export type Phase =
     | 'final_draft'
     | 'final'
     | 'finished';
+
+export type PhaseInfo = { value: Phase; label: string };
+
+export type Auth = {
+    player: { id: number; nick: string } | null;
+    isAdmin: boolean;
+};

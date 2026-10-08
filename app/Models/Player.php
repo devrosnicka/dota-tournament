@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $withdrawn_from_round
  * @property int|null $seed_rank
  * @property float|null $seed_score
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  */
 class Player extends Model implements AuthenticatableContract
 {
@@ -34,6 +36,19 @@ class Player extends Model implements AuthenticatableContract
     protected $hidden = [
         'login_code',
     ];
+
+    /**
+     * Players have no password and no "remember me" token.
+     */
+    public function getAuthPassword(): string
+    {
+        return '';
+    }
+
+    public function getRememberTokenName(): string
+    {
+        return '';
+    }
 
     protected function casts(): array
     {

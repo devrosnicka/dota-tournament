@@ -1,7 +1,9 @@
 <?php
 
+use App\Enums\Phase;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Tournament\TournamentSettings;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
 
         $middleware->encryptCookies(except: ['appearance']);
+
+        // During registration a newcomer most likely wants to sign up.
+        $middleware->redirectGuestsTo(fn () => app(TournamentSettings::class)->phase() === Phase::Registration
+            ? route('register')
+            : route('login'));
+        $middleware->redirectUsersTo(fn () => route('home'));
 
         $middleware->web(append: [
             HandleAppearance::class,

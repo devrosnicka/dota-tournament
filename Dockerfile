@@ -27,7 +27,8 @@ RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 ENV XDG_CONFIG_HOME=/tmp/xdg/config \
     XDG_DATA_HOME=/tmp/xdg/data \
     COMPOSER_HOME=/tmp/composer \
-    npm_config_cache=/tmp/npm
+    npm_config_cache=/tmp/npm \
+    npm_config_update_notifier=false
 
 # Build: production dependencies and compiled assets. The Vite build needs PHP
 # as well, because Wayfinder generates the typed routes through artisan.

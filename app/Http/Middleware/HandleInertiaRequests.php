@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\AdminSession;
+use App\Models\Player;
 use App\Tournament\TournamentSettings;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -39,6 +41,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $phase = $this->settings->phase();
+        $player = $request->user();
 
         return [
             ...parent::share($request),
@@ -46,6 +49,10 @@ class HandleInertiaRequests extends Middleware
             'phase' => [
                 'value' => $phase->value,
                 'label' => $phase->label(),
+            ],
+            'auth' => [
+                'player' => $player instanceof Player ? ['id' => $player->id, 'nick' => $player->nick] : null,
+                'isAdmin' => AdminSession::check($request),
             ],
         ];
     }
