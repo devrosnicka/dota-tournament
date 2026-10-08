@@ -271,7 +271,7 @@ Server v transakci ověří, že vybírající je na tahu a že vybraný hráč 
 - Surová hodnocení se nikdy neobjeví v žádné odpovědi.
 - Hráč nemůže zadat výsledek zápasu, ve kterém nehraje.
 - Registrace bez kódu nebo mimo fázi registrace selže.
-- Nepřihlášený uživatel neuvidí nic kromě registrace a TV režimu se správným klíčem.
+- Nepřihlášený uživatel neuvidí nic kromě registrace, přihlášení, průběhu turnaje a TV režimu se správným klíčem.
 
 ### 2.9 Postup implementace (milníky)
 

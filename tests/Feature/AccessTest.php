@@ -20,10 +20,10 @@ function appGetUrls(): array
         ->all();
 }
 
-it('shows guests only registration and login', function () {
+it('shows guests only registration, login and the tournament flow', function () {
     Player::factory()->create();
 
-    $public = ['/register', '/login', '/admin/login'];
+    $public = ['/register', '/login', '/how-it-works', '/admin/login'];
 
     // The TV view needs its key: without it there is nothing to see.
     $this->get('/tv?key=tv-key')->assertOk();

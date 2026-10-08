@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { register } from '@/routes';
+import { howItWorks, register } from '@/routes';
 import { login as adminLogin } from '@/routes/admin';
 import { store } from '@/routes/login';
 
@@ -63,6 +63,12 @@ export default function Login({
                         </Link>
                     </p>
                 )}
+                <Link
+                    href={howItWorks()}
+                    className="underline underline-offset-4"
+                >
+                    Jak turnaj probíhá?
+                </Link>
                 <Link
                     href={adminLogin()}
                     className="text-xs underline-offset-4 hover:underline"

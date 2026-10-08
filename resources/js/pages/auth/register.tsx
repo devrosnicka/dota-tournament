@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { login } from '@/routes';
+import { howItWorks, login } from '@/routes';
 import { store } from '@/routes/register';
 
 export default function Register({ open }: { open: boolean }) {
@@ -59,12 +59,23 @@ export default function Register({ open }: { open: boolean }) {
                 </Form>
             )}
 
-            <p className="text-center text-sm text-muted-foreground">
-                Registroval ses na jiném zařízení?{' '}
-                <Link href={login()} className="underline underline-offset-4">
-                    Přihlas se kódem
+            <div className="grid gap-1 text-center text-sm text-muted-foreground">
+                <p>
+                    Registroval ses na jiném zařízení?{' '}
+                    <Link
+                        href={login()}
+                        className="underline underline-offset-4"
+                    >
+                        Přihlas se kódem
+                    </Link>
+                </p>
+                <Link
+                    href={howItWorks()}
+                    className="underline underline-offset-4"
+                >
+                    Jak turnaj probíhá?
                 </Link>
-            </p>
+            </div>
         </>
     );
 }

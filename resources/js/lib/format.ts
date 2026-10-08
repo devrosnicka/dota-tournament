@@ -21,3 +21,12 @@ export function formatPoints(points: number): string {
 export function formatDiff(diff: number): string {
     return diff > 0 ? `+${diff}` : String(diff);
 }
+
+/** "kolo", "kola" or "kol" to go after the number of rounds. */
+export function roundsWord(rounds: number): string {
+    if (rounds === 1) {
+        return 'kolo';
+    }
+
+    return rounds < 5 ? 'kola' : 'kol';
+}

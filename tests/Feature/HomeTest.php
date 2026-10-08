@@ -50,3 +50,25 @@ it('shows players the rules with the numbers of this tournament', function () {
 it('keeps the rules from guests', function () {
     $this->get('/rules')->assertRedirect('/register');
 });
+
+it('shows guests the tournament flow', function () {
+    $this->get('/how-it-works')
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('how-it-works')
+            ->where('phase.value', 'registration')
+            ->where('rounds', 5)
+            ->where('finalists', 10)
+            ->where('registrationOpen', true));
+
+    setPhase(Phase::GroupStage);
+
+    $this->get('/how-it-works')
+        ->assertInertia(fn (Assert $page) => $page->where('registrationOpen', false));
+});
+
+it('sends players from the tournament flow to the full rules', function () {
+    $this->actingAs(Player::factory()->create())
+        ->get('/how-it-works')
+        ->assertRedirect('/rules');
+});

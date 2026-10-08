@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\HowItWorksController;
 use App\Http\Controllers\Player;
 use App\Http\Controllers\TvController;
 use App\Http\Middleware\EnsureAdmin;
@@ -8,9 +9,11 @@ use App\Http\Middleware\EnsureTvKey;
 use Illuminate\Support\Facades\Route;
 
 /*
-| Guests see only registration, login and the TV view (SPEC §2.8).
+| Guests see only registration, login, the tournament flow and the TV view
+| (SPEC §2.8).
 */
 Route::get('tv', TvController::class)->middleware(EnsureTvKey::class)->name('tv');
+Route::get('how-it-works', HowItWorksController::class)->name('how-it-works');
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [Player\RegisterController::class, 'create'])->name('register');

@@ -2,9 +2,10 @@ import { Head, usePage } from '@inertiajs/react';
 import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
+import TournamentFlow from '@/components/tournament-flow';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { roundsWord } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import type { Phase } from '@/types';
 
 type Props = {
     rounds: number;
@@ -12,44 +13,6 @@ type Props = {
     format: { name: string; matches: number; sitting: number } | null;
     finalists: number;
 };
-
-const phases: { value: Phase; label: string; text: string }[] = [
-    {
-        value: 'registration',
-        label: 'Registrace',
-        text: 'Zaregistruješ se přezdívkou a kódem, který znají jen účastníci.',
-    },
-    {
-        value: 'ranking',
-        label: 'Hodnocení hráčů',
-        text: 'Seřadíš ostatní od nejlepšího po nejhoršího. Z toho vznikne nasazení.',
-    },
-    {
-        value: 'schedule_review',
-        label: 'Příprava rozpisu',
-        text: 'Admin vygeneruje rozpis všech kol najednou a zveřejní ho.',
-    },
-    {
-        value: 'group_stage',
-        label: 'Základní část',
-        text: 'Hraje se v pokaždé jinak namíchaných týmech, každý sbírá body sám za sebe.',
-    },
-    {
-        value: 'final_draft',
-        label: 'Draft finále',
-        text: 'Dva nejlepší jsou kapitáni a vybírají si hráče do týmů.',
-    },
-    {
-        value: 'final',
-        label: 'Finále',
-        text: 'Tým proti týmu 5v5 na dvě vítězné mapy (Bo3).',
-    },
-    {
-        value: 'finished',
-        label: 'Vyhlášení',
-        text: 'Trofeje pro vítězný tým finále a pro celkového šampiona.',
-    },
-];
 
 const formats = [
     { players: 10, format: '1× 5v5', sitting: 0 },
@@ -82,34 +45,19 @@ export default function Rules({ rounds, players, format, finalists }: Props) {
                 <SectionNav />
 
                 <Section id="prubeh" title="Průběh turnaje">
-                    <ol className="grid gap-2">
-                        {phases.map((p, index) => (
-                            <li
-                                key={p.value}
-                                className={cn(
-                                    'flex gap-3 rounded-md p-2',
-                                    p.value === phase.value &&
-                                        'bg-primary/10 ring-1 ring-primary',
-                                )}
-                            >
-                                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">
-                                    {index + 1}
-                                </span>
-                                <span>
-                                    <strong>{p.label}</strong>
-                                    {p.value === phase.value && (
-                                        <span className="ml-2 text-xs text-primary">
-                                            právě teď
-                                        </span>
-                                    )}
-                                    <br />
-                                    <span className="text-muted-foreground">
-                                        {p.text}
-                                    </span>
-                                </span>
-                            </li>
-                        ))}
-                    </ol>
+                    <TournamentFlow
+                        current={phase.value}
+                        rounds={rounds}
+                        finalists={finalists}
+                        details={{
+                            ranking: 'hodnoceni',
+                            schedule_review: 'zakladni-cast',
+                            group_stage: 'zakladni-cast',
+                            final_draft: 'finale',
+                            final: 'finale',
+                            finished: 'celkove-poradi',
+                        }}
+                    />
                 </Section>
 
                 <Section id="hodnoceni" title="Hodnocení hráčů a nasazení">
@@ -137,12 +85,7 @@ export default function Rules({ rounds, players, format, finalists }: Props) {
                     <p>
                         Hraje se{' '}
                         <strong>
-                            {rounds}{' '}
-                            {rounds === 1
-                                ? 'kolo'
-                                : rounds < 5
-                                  ? 'kola'
-                                  : 'kol'}
+                            {rounds} {roundsWord(rounds)}
                         </strong>
                         . Formát kola záleží na počtu hráčů:
                     </p>
