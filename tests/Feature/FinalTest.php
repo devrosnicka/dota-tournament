@@ -12,17 +12,6 @@ use App\Tournament\Standings;
 use App\Tournament\TournamentSettings;
 use Inertia\Testing\AssertableInertia as Assert;
 
-/**
- * Ten players, one 5v5 round won by side A, final draft started.
- */
-function startFinal(): void
-{
-    seededTournament(10, 1);
-    setPhase(Phase::GroupStage);
-    playRounds(null, fn () => [Side::A, 30, 10]);
-    asAdmin()->post('/admin/phase/advance');
-}
-
 function finalStage(): FinalStage
 {
     return app(FinalStage::class);
@@ -177,22 +166,3 @@ it('shows the draft to players and on the TV', function () {
         ->where('final.pickingSide', 'A')
         ->where('final.you.canPick', false));
 });
-
-function completeDraft(): void
-{
-    $final = app(FinalStage::class);
-
-    if ($final->draft()->advantage === null) {
-        $final->chooseAdvantage(Advantage::PlayerPick, null);
-    }
-
-    foreach ($final->draft()->available() as $player) {
-        $final->pick($player, null);
-    }
-
-    foreach ([Side::A, Side::B] as $side) {
-        foreach ($final->draft()->roleOrder($side) as $index => $player) {
-            $final->chooseRole($player, $index + 1, null);
-        }
-    }
-}

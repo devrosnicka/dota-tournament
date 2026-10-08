@@ -4,7 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatPoints } from '@/lib/format';
-import { ranking as rankingPage, standings } from '@/routes';
+import {
+    final as finalPage,
+    ranking as rankingPage,
+    results,
+    standings,
+} from '@/routes';
 import { show as showMatch } from '@/routes/matches';
 import type { Phase } from '@/types';
 
@@ -15,9 +20,9 @@ const phaseInfo: Record<Phase, string> = {
         'Seřaď ostatní hráče od nejlepšího po nejhoršího. Z hodnocení všech vznikne nasazení pro vyvážené týmy.',
     schedule_review: 'Admin připravuje rozpis základní části.',
     group_stage: 'Hraje se základní část.',
-    final_draft: 'Kapitáni vybírají týmy do finále.',
-    final: 'Hraje se finále.',
-    finished: 'Turnaj skončil.',
+    final_draft: 'Kapitáni vybírají týmy do finále, pak si hráči volí role.',
+    final: 'Hraje se finále, série na dvě vítězné mapy (Bo3).',
+    finished: 'Turnaj skončil. Gratulujeme vítězům!',
 };
 
 type GroupStage = {
@@ -49,7 +54,7 @@ export default function Home({ ranking, groupStage }: Props) {
     return (
         <>
             <Head title="Domů" />
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 <h1 className="text-2xl font-bold">
                     Ahoj, {auth.player?.nick}
                 </h1>
@@ -61,6 +66,17 @@ export default function Home({ ranking, groupStage }: Props) {
                         <p className="text-muted-foreground">
                             {phaseInfo[phase.value]}
                         </p>
+                        {(phase.value === 'final_draft' ||
+                            phase.value === 'final') && (
+                            <Button asChild className="justify-self-start">
+                                <Link href={finalPage()}>Finále</Link>
+                            </Button>
+                        )}
+                        {phase.value === 'finished' && (
+                            <Button asChild className="justify-self-start">
+                                <Link href={results()}>Výsledky a trofeje</Link>
+                            </Button>
+                        )}
                         {ranking && (
                             <div className="flex items-center gap-3">
                                 <Button asChild>

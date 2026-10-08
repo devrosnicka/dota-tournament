@@ -46,7 +46,7 @@ final class PhaseManager
             Phase::ScheduleReview => $this->schedule->exists() ? [] : ['Rozpis ještě není vygenerovaný.'],
             Phase::GroupStage => $this->groupStageBlockers(),
             Phase::FinalDraft => $this->final->draft()?->stage() === DraftStage::Done ? [] : ['Draft hráčů a rolí ještě není dokončený.'],
-            Phase::Final => $this->final->series()->winner() !== null ? [] : ['Série finále ještě není rozhodnutá.'],
+            Phase::Final => $this->finalBlockers(),
             Phase::Finished => ['Turnaj už skončil.'],
         };
     }
@@ -103,6 +103,20 @@ final class PhaseManager
 
             return $to;
         });
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function finalBlockers(): array
+    {
+        if ($this->final->series()->winner() === null) {
+            return ['Série finále ještě není rozhodnutá.'];
+        }
+
+        return app(Overall::class)->table()->needsShootout()
+            ? ['Shoda o celkového šampiona čeká na výsledek rozstřelu.']
+            : [];
     }
 
     /**

@@ -38,7 +38,7 @@ export default function Dashboard({
     return (
         <>
             <Head title="Administrace" />
-            <div className="grid gap-6 md:grid-cols-[2fr_1fr]">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr]">
                 <Card>
                     <CardHeader>
                         <CardTitle>Fáze turnaje</CardTitle>

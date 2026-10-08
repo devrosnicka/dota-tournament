@@ -25,6 +25,20 @@ Ostatní příkazy: `./dev artisan migrate:fresh --seed`, `./dev shell`, `./dev 
 
 V lokálním `.env` doplň `REGISTRATION_CODE`, `ADMIN_PASSWORD` a `TV_KEY`. Pro vývoj stačí libovolné hodnoty.
 
+## Průběh turnaje (pro admina)
+
+Admin se přihlásí na `/admin/login` heslem `ADMIN_PASSWORD`. Fáze přepíná na přehledu administrace.
+
+1. **Registrace**: hráči se registrují přezdívkou a kódem `REGISTRATION_CODE`. Na jiném zařízení se přihlásí 4místným kódem (v menu „Přihlásit jiné zařízení“, nebo ho vygeneruje admin u hráče).
+2. **Hodnocení hráčů**: každý seřadí ostatní. Admin vidí, kdo ještě neodeslal, a průběžné nasazení. Přechod dál zamkne nasazení (je potřeba 10–16 hráčů).
+3. **Příprava rozpisu**: admin zvolí počet kol a vygeneruje rozpis. Může ho přegenerovat nebo prohodit dva hráče a pak ho tlačítkem „Zveřejnit a zahájit“ spustí.
+4. **Základní část**: výsledky zadávají hráči zápasu (vítěz a killy), admin může cokoli opravit. Po každém kole ho admin uzavře v „Výsledky“. Odstoupení se zadává u hráče v „Hráči“. Shodu na hranici postupu rozhodne rozstřel, jehož výsledek se zadá v „Shody“.
+5. **Draft finále**: kapitán z 1. místa zvolí výhodu, kapitáni vybírají hráče a pak si hráči volí role. Admin může táhnout za kohokoli a vrátit poslední tah.
+6. **Finále**: admin zapisuje mapy série Bo3. Případnou shodu o šampiona rozhodne rozstřel („Shody“).
+7. **Vyhlášení**: trofeje a celkové pořadí na stránce Výsledky a na TV.
+
+TV režim běží na `/tv?key=TV_KEY` (jen pro čtení, obnovuje se sám).
+
 ## Nasazení
 
 Každý push do `main` spustí [CI](.github/workflows/ci.yml):

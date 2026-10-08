@@ -19,6 +19,7 @@ import {
     home,
     logout,
     ranking,
+    results,
     schedule,
     standings,
 } from '@/routes';
@@ -39,6 +40,9 @@ export default function PlayerLayout({ children }: { children: ReactNode }) {
             : []),
         ...(isAtLeast(phase.value, 'final_draft')
             ? [{ label: 'Finále', href: final() }]
+            : []),
+        ...(isAtLeast(phase.value, 'final')
+            ? [{ label: 'Výsledky', href: results() }]
             : []),
         ...(phase.value !== 'registration'
             ? [{ label: 'Hodnocení hráčů', href: ranking() }]

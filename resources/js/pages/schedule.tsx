@@ -14,7 +14,7 @@ export default function Schedule({ rounds, me }: Props) {
     return (
         <>
             <Head title="Rozpis" />
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 <h1 className="text-2xl font-bold">Rozpis</h1>
                 {rounds === null ? (
                     <p className="text-muted-foreground">

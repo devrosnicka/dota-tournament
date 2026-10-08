@@ -53,7 +53,7 @@ export default function Schedule({
     return (
         <>
             <Head title="Rozpis" />
-            <div className="grid gap-6">
+            <div className="grid grid-cols-1 gap-6">
                 {editable && (
                     <Card>
                         <CardHeader>

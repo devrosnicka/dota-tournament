@@ -48,7 +48,7 @@ export default function AdminFinal({ final }: Props) {
     return (
         <>
             <Head title="Finále" />
-            <div className="grid gap-6">
+            <div className="grid grid-cols-1 gap-6">
                 {errors.draft && (
                     <Alert variant="destructive">
                         <AlertDescription>{errors.draft}</AlertDescription>

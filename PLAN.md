@@ -122,7 +122,7 @@ resources/js/pages/{player,admin,tv}/…
 
 ## 5. Milníky
 
-Každý milník končí zelenými testy.
+Každý milník končí zelenými testy. Stav k 2026-10-08: milníky 1–8 jsou hotové.
 
 1. **Kostra:** starter kit bez účtů, Pest, Docker (dev + prod), CI a deploy workflow, čeština, layout pro hráče, `players`, `settings`, `audit_log`. Layout admina přibude v milníku 2, TV v milníku 5.
 2. **Hráči a přihlášení:** registrace, login kódem, admin login, správa hráčů, přechod `registration → ranking`, feature testy přístupu.

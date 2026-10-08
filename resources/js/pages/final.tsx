@@ -31,7 +31,7 @@ export default function Final({ final }: Props) {
     return (
         <>
             <Head title="Finále" />
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 <h1 className="text-2xl font-bold">Finále</h1>
                 {errors.draft && (
                     <Alert variant="destructive">

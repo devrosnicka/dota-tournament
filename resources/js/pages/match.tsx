@@ -29,7 +29,7 @@ export default function Match({ match, me, canReport }: Props) {
     return (
         <>
             <Head title={`${match.round}. kolo`} />
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 <Link
                     href={home()}
                     className="flex items-center gap-1 text-sm text-muted-foreground"

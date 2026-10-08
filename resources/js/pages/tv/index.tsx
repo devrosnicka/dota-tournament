@@ -1,10 +1,17 @@
 import { Head, usePage, usePoll } from '@inertiajs/react';
 import FinalBoard from '@/components/final-board';
 import MatchCard from '@/components/match-card';
+import OverallTable from '@/components/overall-table';
 import SeriesBoard from '@/components/series-board';
+import Trophies from '@/components/trophies';
 import StandingsTable from '@/components/standings-table';
 import { teamName } from '@/lib/final';
-import type { FinalState, GroupStandings, ScheduleRound } from '@/types';
+import type {
+    FinalState,
+    GroupStandings,
+    OverallState,
+    ScheduleRound,
+} from '@/types';
 
 type Props = {
     players?: string[];
@@ -12,6 +19,7 @@ type Props = {
     round?: ScheduleRound | null;
     standings?: GroupStandings;
     final?: FinalState | null;
+    overall?: OverallState;
 };
 
 export default function Tv({
@@ -20,6 +28,7 @@ export default function Tv({
     round,
     standings,
     final,
+    overall,
 }: Props) {
     const { phase } = usePage().props;
 
@@ -109,6 +118,18 @@ export default function Tv({
             )}
 
             {final && <FinalSection final={final} />}
+
+            {overall && (
+                <div className="grid gap-10">
+                    <Trophies overall={overall} size="tv" />
+                    <section>
+                        <h2 className="mb-4 text-4xl font-semibold">
+                            Celkové pořadí
+                        </h2>
+                        <OverallTable overall={overall} size="tv" />
+                    </section>
+                </div>
+            )}
         </>
     );
 }

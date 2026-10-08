@@ -23,13 +23,13 @@ export default function SeriesBoard({ final, size = 'default' }: Props) {
                     tv ? 'text-7xl' : 'text-3xl',
                 )}
             >
-                <span className="truncate text-right text-[0.5em] font-semibold">
+                <span className="min-w-0 flex-1 truncate text-right text-[0.5em] font-semibold">
                     {name('A')}
                 </span>
-                <span>
+                <span className="shrink-0">
                     {series.wins.A} : {series.wins.B}
                 </span>
-                <span className="truncate text-[0.5em] font-semibold">
+                <span className="min-w-0 flex-1 truncate text-[0.5em] font-semibold">
                     {name('B')}
                 </span>
             </div>

@@ -1,11 +1,13 @@
 <?php
 
+use App\Enums\Advantage;
 use App\Enums\Phase;
 use App\Enums\Side;
 use App\Http\AdminSession;
 use App\Models\GameMatch;
 use App\Models\Player;
 use App\Models\Round;
+use App\Tournament\FinalStage;
 use App\Tournament\Results;
 use App\Tournament\Schedule;
 use App\Tournament\Standings;
@@ -92,4 +94,34 @@ function playRounds(?array $numbers = null, ?Closure $result = null): void
     }
 
     app(Standings::class)->forget();
+}
+
+/**
+ * Ten players, one 5v5 round won by side A, final draft started.
+ */
+function startFinal(): void
+{
+    seededTournament(10, 1);
+    setPhase(Phase::GroupStage);
+    playRounds(null, fn () => [Side::A, 30, 10]);
+    asAdmin()->post('/admin/phase/advance');
+}
+
+function completeDraft(): void
+{
+    $final = app(FinalStage::class);
+
+    if ($final->draft()->advantage === null) {
+        $final->chooseAdvantage(Advantage::PlayerPick, null);
+    }
+
+    foreach ($final->draft()->available() as $player) {
+        $final->pick($player, null);
+    }
+
+    foreach ([Side::A, Side::B] as $side) {
+        foreach ($final->draft()->roleOrder($side) as $index => $player) {
+            $final->chooseRole($player, $index + 1, null);
+        }
+    }
 }

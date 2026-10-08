@@ -14,7 +14,7 @@ export default function Standings({ standings, me }: Props) {
     return (
         <>
             <Head title="Tabulka" />
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 <h1 className="text-2xl font-bold">Tabulka základní části</h1>
                 {standings ? (
                     <Card>

@@ -32,7 +32,7 @@ export default function Results({ rounds, currentRound, editable }: Props) {
     return (
         <>
             <Head title="Výsledky" />
-            <div className="grid gap-6">
+            <div className="grid grid-cols-1 gap-6">
                 {rounds.length === 0 && (
                     <p className="text-muted-foreground">
                         Rozpis ještě neexistuje.

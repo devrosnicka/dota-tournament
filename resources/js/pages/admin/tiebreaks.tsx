@@ -11,21 +11,31 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { qualification as storeQualification } from '@/routes/admin/tiebreaks';
+import {
+    champion as storeChampion,
+    qualification as storeQualification,
+} from '@/routes/admin/tiebreaks';
+
+type TiedPlayer = { id: number; nick: string };
 
 type Props = {
     qualification: {
-        players: { id: number; nick: string }[];
+        players: TiedPlayer[];
         spots: number;
         resolved: boolean;
     } | null;
+    champion: {
+        bracket: TiedPlayer[];
+        resolved: boolean;
+        winner: number | null;
+    } | null;
 };
 
-export default function Tiebreaks({ qualification }: Props) {
+export default function Tiebreaks({ qualification, champion }: Props) {
     return (
         <>
             <Head title="Shody" />
-            <div className="grid gap-6">
+            <div className="grid grid-cols-1 gap-6">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -65,8 +75,105 @@ export default function Tiebreaks({ qualification }: Props) {
                         )}
                     </CardContent>
                 </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            Celkový šampion
+                            {champion && (
+                                <Badge
+                                    variant={
+                                        champion.resolved
+                                            ? 'secondary'
+                                            : 'destructive'
+                                    }
+                                >
+                                    {champion.resolved
+                                        ? 'rozhodnuto'
+                                        : 'čeká na rozstřel'}
+                                </Badge>
+                            )}
+                        </CardTitle>
+                        <CardDescription>
+                            Shodu o 1. místo rozhodují body z finále, pak
+                            rozstřel 1v1 se Shadow Fiendem. Při třech a více
+                            hráčích se hraje pavouk s nasazením losem.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {champion ? (
+                            <ChampionForm champion={champion} />
+                        ) : (
+                            <p className="text-muted-foreground">
+                                O 1. místo teď žádná shoda není (nebo ještě není
+                                rozhodnutá série finále).
+                            </p>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </>
+    );
+}
+
+function ChampionForm({
+    champion,
+}: {
+    champion: NonNullable<Props['champion']>;
+}) {
+    const [winner, setWinner] = useState(champion.winner);
+    const pairs: string[] = [];
+
+    for (let i = 0; i < champion.bracket.length; i += 2) {
+        const [a, b] = champion.bracket.slice(i, i + 2);
+        pairs.push(
+            b ? `${a.nick} vs ${b.nick}` : `${a.nick} postupuje bez boje`,
+        );
+    }
+
+    return (
+        <div className="grid gap-4">
+            <div className="text-sm">
+                <p className="font-medium">
+                    {champion.bracket.length > 2
+                        ? 'Pavouk (nasazení losem):'
+                        : 'Rozstřel:'}
+                </p>
+                <ul className="list-disc pl-5">
+                    {pairs.map((pair) => (
+                        <li key={pair}>{pair}</li>
+                    ))}
+                </ul>
+                {champion.bracket.length > 2 && (
+                    <p className="text-muted-foreground">
+                        Vítězové hrají dál, dokud nezbude jeden.
+                    </p>
+                )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+                {champion.bracket.map((player) => (
+                    <Button
+                        key={player.id}
+                        variant={winner === player.id ? 'default' : 'outline'}
+                        onClick={() => setWinner(player.id)}
+                    >
+                        {player.nick}
+                    </Button>
+                ))}
+            </div>
+            <Button
+                disabled={winner === null}
+                className="justify-self-start"
+                onClick={() =>
+                    router.visit(storeChampion(), {
+                        data: { winner },
+                        preserveScroll: true,
+                    })
+                }
+            >
+                Uložit vítěze rozstřelu
+            </Button>
+        </div>
     );
 }
 

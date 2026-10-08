@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Tournament\AuditLogger;
+use App\Tournament\FinalStage;
 use App\Tournament\Standings;
 use App\Tournament\TournamentSettings;
 use Carbon\CarbonImmutable;
@@ -21,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(TournamentSettings::class);
         $this->app->scoped(AuditLogger::class);
         $this->app->scoped(Standings::class);
+        $this->app->scoped(FinalStage::class);
     }
 
     /**

@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::get('matches/{match}', [Player\MatchController::class, 'show'])->name('matches.show');
     Route::post('matches/{match}/result', [Player\MatchController::class, 'report'])->name('matches.report');
 
+    Route::get('results', Player\ResultsController::class)->name('results');
     Route::get('final', [Player\FinalController::class, 'show'])->name('final');
     Route::post('final/advantage', [Player\FinalController::class, 'advantage'])->name('final.advantage');
     Route::post('final/pick', [Player\FinalController::class, 'pick'])->name('final.pick');
@@ -66,6 +67,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('tiebreaks', [Admin\TiebreakController::class, 'index'])->name('tiebreaks');
         Route::post('tiebreaks/qualification', [Admin\TiebreakController::class, 'storeQualification'])->name('tiebreaks.qualification');
+        Route::post('tiebreaks/champion', [Admin\TiebreakController::class, 'storeChampion'])->name('tiebreaks.champion');
 
         Route::get('final', [Admin\FinalController::class, 'index'])->name('final');
         Route::post('final/advantage', [Admin\FinalController::class, 'advantage'])->name('final.advantage');
