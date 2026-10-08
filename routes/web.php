@@ -2,12 +2,16 @@
 
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Player;
+use App\Http\Controllers\TvController;
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureTvKey;
 use Illuminate\Support\Facades\Route;
 
 /*
 | Guests see only registration, login and the TV view (SPEC §2.8).
 */
+Route::get('tv', TvController::class)->middleware(EnsureTvKey::class)->name('tv');
+
 Route::middleware('guest')->group(function () {
     Route::get('register', [Player\RegisterController::class, 'create'])->name('register');
     Route::post('register', [Player\RegisterController::class, 'store'])->name('register.store');
@@ -23,6 +27,9 @@ Route::middleware('auth')->group(function () {
     Route::get('ranking', [Player\RankingController::class, 'show'])->name('ranking');
     Route::post('ranking', [Player\RankingController::class, 'store'])->name('ranking.store');
     Route::get('schedule', Player\ScheduleController::class)->name('schedule');
+    Route::get('standings', Player\StandingsController::class)->name('standings');
+    Route::get('matches/{match}', [Player\MatchController::class, 'show'])->name('matches.show');
+    Route::post('matches/{match}/result', [Player\MatchController::class, 'report'])->name('matches.report');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -45,5 +52,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('schedule', [Admin\ScheduleController::class, 'index'])->name('schedule');
         Route::post('schedule/generate', [Admin\ScheduleController::class, 'generate'])->name('schedule.generate');
         Route::post('schedule/rounds/{round}/swap', [Admin\ScheduleController::class, 'swap'])->name('schedule.swap');
+
+        Route::get('results', [Admin\ResultsController::class, 'index'])->name('results');
+        Route::post('matches/{match}/result', [Admin\ResultsController::class, 'report'])->name('matches.report');
+        Route::post('rounds/{round}/close', [Admin\ResultsController::class, 'close'])->name('rounds.close');
+        Route::post('rounds/{round}/reopen', [Admin\ResultsController::class, 'reopen'])->name('rounds.reopen');
+
+        Route::get('tiebreaks', [Admin\TiebreakController::class, 'index'])->name('tiebreaks');
+        Route::post('tiebreaks/qualification', [Admin\TiebreakController::class, 'storeQualification'])->name('tiebreaks.qualification');
     });
 });

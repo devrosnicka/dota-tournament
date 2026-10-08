@@ -7,6 +7,7 @@ type Props = {
     highlightId?: number;
     showSeeds?: boolean;
     seedDiff?: number;
+    size?: 'default' | 'tv';
     className?: string;
 };
 
@@ -15,24 +16,37 @@ export default function MatchCard({
     highlightId,
     showSeeds = false,
     seedDiff,
+    size = 'default',
     className,
 }: Props) {
     const mine = [...match.teamA, ...match.teamB].some(
         (p) => p.id === highlightId,
     );
+    const tv = size === 'tv';
 
     return (
         <div
             className={cn(
-                'rounded-lg border bg-card p-3',
+                'rounded-lg border bg-card',
+                tv ? 'p-6' : 'p-3',
                 mine && 'border-primary ring-1 ring-primary',
                 className,
             )}
         >
-            <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+            <div
+                className={cn(
+                    'mb-2 flex items-center justify-between text-muted-foreground',
+                    tv ? 'text-2xl' : 'text-xs',
+                )}
+            >
                 <span>{match.lobby ? `Lobby ${match.lobby}` : 'Zápas'}</span>
                 {match.winner && (
-                    <span className="font-medium text-foreground tabular-nums">
+                    <span
+                        className={cn(
+                            'font-medium text-foreground tabular-nums',
+                            tv && 'text-4xl font-bold',
+                        )}
+                    >
                         {match.killsA} : {match.killsB}
                     </span>
                 )}
@@ -52,6 +66,7 @@ export default function MatchCard({
                     won={match.winner === 'A'}
                     highlightId={highlightId}
                     showSeeds={showSeeds}
+                    tv={tv}
                 />
                 <Team
                     label="Tým B"
@@ -59,6 +74,7 @@ export default function MatchCard({
                     won={match.winner === 'B'}
                     highlightId={highlightId}
                     showSeeds={showSeeds}
+                    tv={tv}
                 />
             </div>
         </div>
@@ -71,21 +87,35 @@ function Team({
     won,
     highlightId,
     showSeeds,
+    tv,
 }: {
     label: string;
     players: SchedulePlayer[];
     won: boolean;
     highlightId?: number;
     showSeeds: boolean;
+    tv: boolean;
 }) {
     const seeds = players.map((p) => p.seed ?? 0);
     const average = seeds.reduce((a, b) => a + b, 0) / (seeds.length || 1);
 
     return (
         <div>
-            <div className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground uppercase">
+            <div
+                className={cn(
+                    'mb-1 flex items-center gap-1 font-medium text-muted-foreground uppercase',
+                    tv ? 'text-xl' : 'text-xs',
+                )}
+            >
                 {label}
-                {won && <Trophy className="size-3.5 text-amber-500" />}
+                {won && (
+                    <Trophy
+                        className={cn(
+                            'text-amber-500',
+                            tv ? 'size-6' : 'size-3.5',
+                        )}
+                    />
+                )}
                 {showSeeds && (
                     <span className="ml-auto font-normal normal-case">
                         ⌀{' '}
@@ -100,7 +130,8 @@ function Team({
                     <li
                         key={player.id}
                         className={cn(
-                            'flex items-center gap-1 truncate rounded px-1 text-sm',
+                            'flex items-center gap-1 truncate rounded px-1',
+                            tv ? 'text-4xl leading-snug' : 'text-sm',
                             player.id === highlightId &&
                                 'bg-primary font-semibold text-primary-foreground',
                         )}

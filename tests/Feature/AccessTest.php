@@ -25,6 +25,9 @@ it('shows guests only registration and login', function () {
 
     $public = ['/register', '/login', '/admin/login'];
 
+    // The TV view needs its key: without it there is nothing to see.
+    $this->get('/tv?key=tv-key')->assertOk();
+
     foreach (appGetUrls() as $url) {
         $response = $this->get($url);
 

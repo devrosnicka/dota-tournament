@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sheet';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 import { isAtLeast } from '@/lib/phase';
-import { device, home, logout, ranking, schedule } from '@/routes';
+import { device, home, logout, ranking, schedule, standings } from '@/routes';
 import { dashboard } from '@/routes/admin';
 
 export default function PlayerLayout({ children }: { children: ReactNode }) {
@@ -24,7 +24,10 @@ export default function PlayerLayout({ children }: { children: ReactNode }) {
     const links = [
         { label: 'Domů', href: home() },
         ...(isAtLeast(phase.value, 'group_stage')
-            ? [{ label: 'Rozpis', href: schedule() }]
+            ? [
+                  { label: 'Rozpis', href: schedule() },
+                  { label: 'Tabulka', href: standings() },
+              ]
             : []),
         ...(phase.value !== 'registration'
             ? [{ label: 'Hodnocení hráčů', href: ranking() }]

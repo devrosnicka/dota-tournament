@@ -1,8 +1,11 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, usePoll } from '@inertiajs/react';
+import { Trophy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ranking as rankingPage } from '@/routes';
+import { formatPoints } from '@/lib/format';
+import { ranking as rankingPage, standings } from '@/routes';
+import { show as showMatch } from '@/routes/matches';
 import type { Phase } from '@/types';
 
 const phaseInfo: Record<Phase, string> = {
@@ -17,12 +20,31 @@ const phaseInfo: Record<Phase, string> = {
     finished: 'Turnaj skončil.',
 };
 
-type Props = {
-    ranking: { submitted: boolean } | null;
+type GroupStage = {
+    round: number | null;
+    sitting: boolean;
+    match: {
+        id: number;
+        lobby: number | null;
+        side: 'A' | 'B';
+        teamA: string[];
+        teamB: string[];
+        winner: 'A' | 'B' | null;
+        killsA: number | null;
+        killsB: number | null;
+    } | null;
+    standing: { position: number | null; points: number } | null;
 };
 
-export default function Home({ ranking }: Props) {
+type Props = {
+    ranking: { submitted: boolean } | null;
+    groupStage: GroupStage | null;
+};
+
+export default function Home({ ranking, groupStage }: Props) {
     const { phase, auth } = usePage().props;
+
+    usePoll(10_000, {}, { autoStart: groupStage !== null });
 
     return (
         <>
@@ -63,7 +85,87 @@ export default function Home({ ranking }: Props) {
                         )}
                     </CardContent>
                 </Card>
+                {groupStage && <GroupStageCard groupStage={groupStage} />}
             </div>
         </>
+    );
+}
+
+function GroupStageCard({ groupStage }: { groupStage: GroupStage }) {
+    const { round, sitting, match, standing } = groupStage;
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>
+                    {round ? `${round}. kolo` : 'Všechna kola jsou odehraná'}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+                {sitting && (
+                    <p>
+                        V tomhle kole <strong>sedíš</strong> a dostaneš 0,5
+                        bodu.
+                    </p>
+                )}
+                {match && (
+                    <div className="grid gap-3">
+                        <p>
+                            Hraješ{' '}
+                            {match.lobby ? `v lobby ${match.lobby} ` : ''}za{' '}
+                            <strong>tým {match.side}</strong>.
+                        </p>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                            {(['A', 'B'] as const).map((side) => (
+                                <div key={side}>
+                                    <div className="mb-1 text-xs font-medium text-muted-foreground uppercase">
+                                        Tým {side}
+                                        {match.winner === side && (
+                                            <Trophy className="ml-1 inline size-3.5 text-amber-500" />
+                                        )}
+                                    </div>
+                                    {(side === 'A'
+                                        ? match.teamA
+                                        : match.teamB
+                                    ).join(', ')}
+                                </div>
+                            ))}
+                        </div>
+                        {match.winner && (
+                            <p className="text-sm text-muted-foreground">
+                                Výsledek: vyhrál tým {match.winner}, killy{' '}
+                                {match.killsA} : {match.killsB}.
+                            </p>
+                        )}
+                        <Button
+                            asChild
+                            variant={match.winner ? 'outline' : 'default'}
+                        >
+                            <Link href={showMatch(match.id)}>
+                                {match.winner
+                                    ? 'Upravit výsledek'
+                                    : 'Zadat výsledek'}
+                            </Link>
+                        </Button>
+                    </div>
+                )}
+                {standing && (
+                    <div className="flex items-center justify-between border-t pt-3 text-sm">
+                        <span>
+                            {standing.position
+                                ? `${standing.position}. místo`
+                                : 'Mimo pořadí'}{' '}
+                            · {formatPoints(standing.points)} b.
+                        </span>
+                        <Link
+                            href={standings()}
+                            className="underline underline-offset-4"
+                        >
+                            Tabulka
+                        </Link>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
     );
 }

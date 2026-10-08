@@ -99,6 +99,25 @@ it('shows guests nothing', function () {
     assertNothingLeaks($this, null);
 });
 
+it('keeps rankings and the seeding off the TV', function (Phase $phase) {
+    if ($phase !== Phase::Ranking) {
+        app(Rankings::class)->snapshot();
+        setPhase(Phase::ScheduleReview);
+        app(Schedule::class)->generate(3);
+    }
+
+    setPhase($phase);
+    $body = html_entity_decode($this->get('/tv?key=tv-key')->assertOk()->getContent());
+
+    foreach (['seed', 'seedRank', 'seed_rank', 'seed_score', 'rankings'] as $key) {
+        expect($body)->not->toContain("\"{$key}\"");
+    }
+
+    foreach ($this->orders as $order) {
+        expect(containsRun($body, $order))->toBeFalse();
+    }
+})->with([Phase::Ranking, Phase::GroupStage]);
+
 it('lets the admin see the seeding', function () {
     asAdmin()->get('/admin/seeding')->assertOk()->assertSee('seeding');
 });

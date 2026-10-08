@@ -13,3 +13,11 @@ export function formatDateTime(iso: string): string {
         minute: '2-digit',
     });
 }
+
+export function formatPoints(points: number): string {
+    return points.toLocaleString('cs-CZ', { maximumFractionDigits: 1 });
+}
+
+export function formatDiff(diff: number): string {
+    return diff > 0 ? `+${diff}` : String(diff);
+}

@@ -5,6 +5,7 @@ import { initializeTheme } from '@/hooks/use-appearance';
 import AdminLayout from '@/layouts/admin-layout';
 import GuestLayout from '@/layouts/guest-layout';
 import PlayerLayout from '@/layouts/player-layout';
+import TvLayout from '@/layouts/tv-layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Dota LAN turnaj';
 
@@ -16,6 +17,8 @@ void createInertiaApp({
                 return GuestLayout;
             case name.startsWith('admin/'):
                 return AdminLayout;
+            case name.startsWith('tv/'):
+                return TvLayout;
             default:
                 return PlayerLayout;
         }

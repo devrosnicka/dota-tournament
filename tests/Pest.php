@@ -1,9 +1,14 @@
 <?php
 
 use App\Enums\Phase;
+use App\Enums\Side;
 use App\Http\AdminSession;
+use App\Models\GameMatch;
 use App\Models\Player;
+use App\Models\Round;
+use App\Tournament\Results;
 use App\Tournament\Schedule;
+use App\Tournament\Standings;
 use App\Tournament\TournamentSettings;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -65,4 +70,26 @@ function seededTournament(int $players = 12, int $rounds = 5): Collection
     app(Schedule::class)->generate($rounds);
 
     return $created;
+}
+
+/**
+ * Report every match of the given rounds (all by default) and close them.
+ *
+ * @param  (Closure(GameMatch): array{0: Side, 1: int, 2: int})|null  $result  winner and kills per match
+ */
+function playRounds(?array $numbers = null, ?Closure $result = null): void
+{
+    $rounds = Round::query()->orderBy('number')->with('matches')->get()
+        ->filter(fn (Round $round) => $numbers === null || in_array($round->number, $numbers, true));
+
+    foreach ($rounds as $round) {
+        foreach ($round->matches as $match) {
+            [$winner, $killsA, $killsB] = $result ? $result($match) : [Side::A, 20, 10];
+            app(Results::class)->report($match, $winner, $killsA, $killsB, null);
+        }
+
+        app(Results::class)->close($round);
+    }
+
+    app(Standings::class)->forget();
 }
