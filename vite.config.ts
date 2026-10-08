@@ -13,8 +13,10 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
+                bunny('Inter', {
+                    weights: [400, 500, 600, 700],
+                    // latin-ext carries Czech letters like ě, š, č, ř, ž, ů.
+                    subsets: ['latin', 'latin-ext'],
                 }),
             ],
         }),
