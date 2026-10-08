@@ -28,6 +28,13 @@ enum Phase: string
         };
     }
 
+    public function isAtLeast(self $phase): bool
+    {
+        $cases = self::cases();
+
+        return array_search($this, $cases, true) >= array_search($phase, $cases, true);
+    }
+
     public function next(): ?self
     {
         $cases = self::cases();

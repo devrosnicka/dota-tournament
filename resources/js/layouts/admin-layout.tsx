@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
-import { dashboard, logout, seeding } from '@/routes/admin';
+import { dashboard, logout, schedule, seeding } from '@/routes/admin';
 import { index as players } from '@/routes/admin/players';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -18,6 +18,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         { label: 'Přehled', href: dashboard() },
         { label: 'Hráči', href: players() },
         { label: 'Nasazení', href: seeding() },
+        { label: 'Rozpis', href: schedule() },
     ];
 
     return (

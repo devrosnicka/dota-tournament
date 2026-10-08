@@ -1,3 +1,4 @@
+export type * from './schedule';
 export type * from './ui';
 
 export type Phase =

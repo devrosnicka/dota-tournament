@@ -19,6 +19,7 @@ final class PhaseManager
         private readonly TournamentSettings $settings,
         private readonly AuditLogger $audit,
         private readonly Rankings $rankings,
+        private readonly Schedule $schedule,
     ) {}
 
     public function current(): Phase
@@ -36,6 +37,7 @@ final class PhaseManager
         return match ($this->current()) {
             Phase::Registration => [],
             Phase::Ranking => $this->playerCountBlockers(),
+            Phase::ScheduleReview => $this->schedule->exists() ? [] : ['Rozpis ještě není vygenerovaný.'],
             Phase::Finished => ['Turnaj už skončil.'],
             default => ['Tento přechod zatím není implementovaný.'],
         };
@@ -82,10 +84,10 @@ final class PhaseManager
             $from = $this->current();
             $to = $this->revertTarget() ?? throw new PhaseTransitionBlocked(['Z této fáze se nelze vrátit.']);
 
-            match ($from) {
-                Phase::ScheduleReview => $this->rankings->clearSnapshot(),
-                default => null,
-            };
+            if ($from === Phase::ScheduleReview) {
+                $this->schedule->delete();
+                $this->rankings->clearSnapshot();
+            }
 
             $this->settings->setPhase($to);
             $this->audit->admin('phase.reverted', ['from' => $from->value, 'to' => $to->value]);

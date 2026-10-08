@@ -22,6 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [Player\LoginController::class, 'destroy'])->name('logout');
     Route::get('ranking', [Player\RankingController::class, 'show'])->name('ranking');
     Route::post('ranking', [Player\RankingController::class, 'store'])->name('ranking.store');
+    Route::get('schedule', Player\ScheduleController::class)->name('schedule');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -40,5 +41,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('players/{player}/login-code', [Admin\PlayerController::class, 'loginCode'])->name('players.login-code');
 
         Route::get('seeding', Admin\SeedingController::class)->name('seeding');
+
+        Route::get('schedule', [Admin\ScheduleController::class, 'index'])->name('schedule');
+        Route::post('schedule/generate', [Admin\ScheduleController::class, 'generate'])->name('schedule.generate');
+        Route::post('schedule/rounds/{round}/swap', [Admin\ScheduleController::class, 'swap'])->name('schedule.swap');
     });
 });

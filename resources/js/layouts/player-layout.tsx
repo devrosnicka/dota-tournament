@@ -12,7 +12,8 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { useFlashToast } from '@/hooks/use-flash-toast';
-import { device, home, logout, ranking } from '@/routes';
+import { isAtLeast } from '@/lib/phase';
+import { device, home, logout, ranking, schedule } from '@/routes';
 import { dashboard } from '@/routes/admin';
 
 export default function PlayerLayout({ children }: { children: ReactNode }) {
@@ -22,6 +23,9 @@ export default function PlayerLayout({ children }: { children: ReactNode }) {
 
     const links = [
         { label: 'Domů', href: home() },
+        ...(isAtLeast(phase.value, 'group_stage')
+            ? [{ label: 'Rozpis', href: schedule() }]
+            : []),
         ...(phase.value !== 'registration'
             ? [{ label: 'Hodnocení hráčů', href: ranking() }]
             : []),

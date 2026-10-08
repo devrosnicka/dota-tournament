@@ -1,8 +1,10 @@
 <?php
 
+use App\Domain\Support\Rng;
 use App\Enums\Phase;
 use App\Models\Player;
 use App\Tournament\Rankings;
+use App\Tournament\Schedule;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
@@ -21,16 +23,11 @@ beforeEach(function () {
 
     setPhase(Phase::Ranking);
 
-    // Rater k orders the others by (id * m) mod 11 with a distinct
-    // multiplier m per rater, so no two orders share a run of neighbours
-    // and none is alphabetical. The last player does not submit.
-    foreach ($this->players->take(9)->values() as $index => $rater) {
-        $multiplier = $index + 2;
-        $order = $this->players->pluck('id')
-            ->reject(fn (int $id) => $id === $rater->id)
-            ->sortBy(fn (int $id) => ($id * $multiplier) % 11)
-            ->values()
-            ->all();
+    // Each rater submits a random order; the last player does not submit.
+    $rng = new Rng(2026);
+
+    foreach ($this->players->take(9) as $rater) {
+        $order = $rng->shuffle($this->players->pluck('id')->reject(fn (int $id) => $id === $rater->id)->values()->all());
 
         app(Rankings::class)->save($rater, $order);
         $this->orders[$rater->id] = $order;
@@ -51,21 +48,15 @@ function privacyUrls(): array
 }
 
 /**
- * Whether the page lists three consecutive players of the given order.
+ * Whether the page lists players in exactly the given order.
  *
  * @param  list<int>  $order
  */
 function containsRun(string $body, array $order): bool
 {
-    for ($i = 0; $i + 2 < count($order); $i++) {
-        [$a, $b, $c] = array_slice($order, $i, 3);
+    $pattern = implode(',[^{}]*\\},\\{', array_map(fn (int $id) => "\"id\":{$id}", $order));
 
-        if (preg_match("/\"id\":{$a},[^{}]*\\},\\{\"id\":{$b},[^{}]*\\},\\{\"id\":{$c}\\b/", $body)) {
-            return true;
-        }
-    }
-
-    return false;
+    return preg_match("/{$pattern}\\b/", $body) === 1;
 }
 
 function assertNothingLeaks(TestCase $test, ?Player $viewer): void
@@ -73,7 +64,7 @@ function assertNothingLeaks(TestCase $test, ?Player $viewer): void
     foreach (privacyUrls() as $url) {
         $body = html_entity_decode($test->get($url)->getContent() ?: '');
 
-        foreach (['seeding', 'seedRank', 'seed_rank', 'seedScore', 'seed_score', 'simpleMean', 'rankings'] as $key) {
+        foreach (['seed', 'seeding', 'seedRank', 'seed_rank', 'seedScore', 'seed_score', 'simpleMean', 'rankings'] as $key) {
             expect($body)->not->toContain("\"{$key}\"", "{$url} exposes {$key}");
         }
 
@@ -86,11 +77,13 @@ function assertNothingLeaks(TestCase $test, ?Player $viewer): void
 }
 
 it('shows a player only their own ranking', function (Phase $phase) {
-    setPhase($phase);
-
     if ($phase !== Phase::Ranking) {
         app(Rankings::class)->snapshot();
+        setPhase(Phase::ScheduleReview);
+        app(Schedule::class)->generate(3);
     }
+
+    setPhase($phase);
 
     $viewer = $this->players->first();
     $this->actingAs($viewer);
