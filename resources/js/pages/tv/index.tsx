@@ -1,19 +1,29 @@
 import { Head, usePage, usePoll } from '@inertiajs/react';
+import FinalBoard from '@/components/final-board';
 import MatchCard from '@/components/match-card';
+import SeriesBoard from '@/components/series-board';
 import StandingsTable from '@/components/standings-table';
-import type { GroupStandings, ScheduleRound } from '@/types';
+import { teamName } from '@/lib/final';
+import type { FinalState, GroupStandings, ScheduleRound } from '@/types';
 
 type Props = {
     players?: string[];
     ranking?: { submitted: number; total: number };
     round?: ScheduleRound | null;
     standings?: GroupStandings;
+    final?: FinalState | null;
 };
 
-export default function Tv({ players, ranking, round, standings }: Props) {
+export default function Tv({
+    players,
+    ranking,
+    round,
+    standings,
+    final,
+}: Props) {
     const { phase } = usePage().props;
 
-    usePoll(10_000);
+    usePoll(phase.value === 'final_draft' ? 2500 : 10_000);
 
     return (
         <>
@@ -97,6 +107,41 @@ export default function Tv({ players, ranking, round, standings }: Props) {
                     </section>
                 </div>
             )}
+
+            {final && <FinalSection final={final} />}
         </>
+    );
+}
+
+function FinalSection({ final }: { final: FinalState }) {
+    const status = (() => {
+        if (final.stage === 'advantage') {
+            return `${final.captains.A.nick} volí výhodu`;
+        }
+
+        if (final.stage === 'picks' && final.pickingSide) {
+            return `Výběr ${final.picksMade + 1}/8 · vybírá ${final.captains[final.pickingSide].nick}`;
+        }
+
+        if (final.stage === 'roles') {
+            return 'Volba rolí';
+        }
+
+        return null;
+    })();
+
+    return (
+        <div className="grid gap-10">
+            {status && <p className="text-5xl font-semibold">{status}</p>}
+            {final.stage !== 'done' && final.advantage && (
+                <p className="text-3xl text-muted-foreground">
+                    {teamName(final, final.firstPickSide ?? 'A')} má první výběr
+                    hráče, {teamName(final, final.series.sidePickHolder ?? 'B')}{' '}
+                    stranu a první pick na 1. mapě.
+                </p>
+            )}
+            <FinalBoard final={final} size="tv" />
+            {final.stage === 'done' && <SeriesBoard final={final} size="tv" />}
+        </div>
     );
 }

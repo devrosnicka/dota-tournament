@@ -1,3 +1,4 @@
+export type * from './final';
 export type * from './schedule';
 export type * from './standings';
 export type * from './ui';

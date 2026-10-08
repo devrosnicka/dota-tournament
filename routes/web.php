@@ -30,6 +30,11 @@ Route::middleware('auth')->group(function () {
     Route::get('standings', Player\StandingsController::class)->name('standings');
     Route::get('matches/{match}', [Player\MatchController::class, 'show'])->name('matches.show');
     Route::post('matches/{match}/result', [Player\MatchController::class, 'report'])->name('matches.report');
+
+    Route::get('final', [Player\FinalController::class, 'show'])->name('final');
+    Route::post('final/advantage', [Player\FinalController::class, 'advantage'])->name('final.advantage');
+    Route::post('final/pick', [Player\FinalController::class, 'pick'])->name('final.pick');
+    Route::post('final/role', [Player\FinalController::class, 'role'])->name('final.role');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -61,5 +66,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('tiebreaks', [Admin\TiebreakController::class, 'index'])->name('tiebreaks');
         Route::post('tiebreaks/qualification', [Admin\TiebreakController::class, 'storeQualification'])->name('tiebreaks.qualification');
+
+        Route::get('final', [Admin\FinalController::class, 'index'])->name('final');
+        Route::post('final/advantage', [Admin\FinalController::class, 'advantage'])->name('final.advantage');
+        Route::post('final/pick', [Admin\FinalController::class, 'pick'])->name('final.pick');
+        Route::post('final/role', [Admin\FinalController::class, 'role'])->name('final.role');
+        Route::post('final/undo', [Admin\FinalController::class, 'undo'])->name('final.undo');
+        Route::post('final/maps', [Admin\FinalController::class, 'storeMap'])->name('final.maps.store');
+        Route::delete('final/maps/last', [Admin\FinalController::class, 'destroyMap'])->name('final.maps.destroy');
     });
 });

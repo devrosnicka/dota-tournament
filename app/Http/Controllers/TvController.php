@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\Phase;
 use App\Models\Player;
+use App\Tournament\FinalView;
 use App\Tournament\Rankings;
 use App\Tournament\Results;
 use App\Tournament\ScheduleView;
@@ -23,6 +24,7 @@ class TvController extends Controller
         Results $results,
         ScheduleView $schedule,
         StandingsView $standings,
+        FinalView $final,
     ): Response {
         $phase = $settings->phase();
         $props = [];
@@ -38,10 +40,14 @@ class TvController extends Controller
             ];
         }
 
-        if ($phase->isAtLeast(Phase::GroupStage)) {
+        if ($phase === Phase::GroupStage) {
             $current = $results->currentRound()?->number;
             $props['round'] = collect($schedule->rounds(withSeeds: false))->firstWhere('number', $current);
             $props['standings'] = $standings->group();
+        }
+
+        if ($phase->isAtLeast(Phase::FinalDraft)) {
+            $props['final'] = $final->state();
         }
 
         return Inertia::render('tv/index', $props);

@@ -4,6 +4,7 @@ namespace App\Tournament;
 
 use App\Domain\Schedule\FormatResolver;
 use App\Domain\Standings\GroupStandings;
+use App\Enums\DraftStage;
 use App\Enums\Phase;
 use App\Enums\RoundStatus;
 use App\Models\Player;
@@ -24,6 +25,7 @@ final class PhaseManager
         private readonly Rankings $rankings,
         private readonly Schedule $schedule,
         private readonly Standings $standings,
+        private readonly FinalStage $final,
     ) {}
 
     public function current(): Phase
@@ -43,8 +45,9 @@ final class PhaseManager
             Phase::Ranking => $this->playerCountBlockers(),
             Phase::ScheduleReview => $this->schedule->exists() ? [] : ['Rozpis ještě není vygenerovaný.'],
             Phase::GroupStage => $this->groupStageBlockers(),
+            Phase::FinalDraft => $this->final->draft()?->stage() === DraftStage::Done ? [] : ['Draft hráčů a rolí ještě není dokončený.'],
+            Phase::Final => $this->final->series()->winner() !== null ? [] : ['Série finále ještě není rozhodnutá.'],
             Phase::Finished => ['Turnaj už skončil.'],
-            default => ['Tento přechod zatím není implementovaný.'],
         };
     }
 
@@ -61,6 +64,7 @@ final class PhaseManager
 
             match ($from) {
                 Phase::Ranking => $this->rankings->snapshot(),
+                Phase::GroupStage => $this->final->start(),
                 default => null,
             };
 

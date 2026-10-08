@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { home } from '@/routes';
 import {
     dashboard,
+    final,
     logout,
     results,
     schedule,
@@ -28,6 +29,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         { label: 'Rozpis', href: schedule() },
         { label: 'Výsledky', href: results() },
         { label: 'Shody', href: tiebreaks() },
+        { label: 'Finále', href: final() },
     ];
 
     return (

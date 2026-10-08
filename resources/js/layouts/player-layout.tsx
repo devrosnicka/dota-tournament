@@ -13,7 +13,15 @@ import {
 } from '@/components/ui/sheet';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 import { isAtLeast } from '@/lib/phase';
-import { device, home, logout, ranking, schedule, standings } from '@/routes';
+import {
+    device,
+    final,
+    home,
+    logout,
+    ranking,
+    schedule,
+    standings,
+} from '@/routes';
 import { dashboard } from '@/routes/admin';
 
 export default function PlayerLayout({ children }: { children: ReactNode }) {
@@ -28,6 +36,9 @@ export default function PlayerLayout({ children }: { children: ReactNode }) {
                   { label: 'Rozpis', href: schedule() },
                   { label: 'Tabulka', href: standings() },
               ]
+            : []),
+        ...(isAtLeast(phase.value, 'final_draft')
+            ? [{ label: 'Finále', href: final() }]
             : []),
         ...(phase.value !== 'registration'
             ? [{ label: 'Hodnocení hráčů', href: ranking() }]
