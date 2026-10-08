@@ -5,6 +5,7 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -64,7 +65,7 @@ jobs:
 
   image:
     needs: checks
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -98,13 +99,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # Runs only once the server is configured: repository variable DEPLOY_ENABLED=true
-  # and secrets SSH_HOST, SSH_USER, SSH_KEY, DEPLOY_PATH (optionally SSH_PORT).
+  # Same VPS and secrets as the other apps behind hetzner-infra-proxy:
+  # VPS_HOST, VPS_USER, VPS_SSH_KEY, plus the repository variable
+  # DEPLOY_ENABLED=true. The app's .env lives on the server in DEPLOY_PATH.
   deploy:
     needs: image
     if: vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     concurrency: deploy
+    env:
+      DEPLOY_PATH: /opt/dota-tournament
 
     steps:
       - name: Checkout code
@@ -114,20 +118,18 @@ jobs:
 
       - name: Deploy over SSH
         env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan "$VPS_HOST" >> ~/.ssh/known_hosts
 
-          target="$SSH_USER@$SSH_HOST"
+          target="$VPS_USER@$VPS_HOST"
 
-          scp -i ~/.ssh/deploy_key -P "$SSH_PORT" compose.prod.yaml "$target:$DEPLOY_PATH/compose.yaml"
-          scp -i ~/.ssh/deploy_key -P "$SSH_PORT" docker/backup.sh "$target:$DEPLOY_PATH/backup.sh"
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$target" \
+          scp -i ~/.ssh/deploy_key compose.prod.yaml "$target:$DEPLOY_PATH/compose.yaml"
+          scp -i ~/.ssh/deploy_key docker/backup.sh "$target:$DEPLOY_PATH/backup.sh"
+          ssh -i ~/.ssh/deploy_key "$target" \
             "cd '$DEPLOY_PATH' && docker compose pull && docker compose up -d --remove-orphans && docker image prune -f"

@@ -45,42 +45,32 @@ Každý push do `main` spustí [CI](.github/workflows/ci.yml):
 
 1. **checks**: styl, statická analýza, lint, typy, testy,
 2. **image**: produkční obraz do `ghcr.io/devrosnicka/dota-tournament:latest`,
-3. **deploy**: přes SSH na server. Běží jen při nastavené proměnné `DEPLOY_ENABLED=true`.
+3. **deploy**: přes SSH na server. Běží jen při nastavené proměnné `DEPLOY_ENABLED=true`. Ručně se dá spustit přes Actions → CI → Run workflow.
 
-Doména ani tajné hodnoty v repozitáři nejsou. Jsou jen v `.env` na serveru a v GitHub Secrets, které nejsou vidět ani u veřejného repa.
+Doména ani tajné hodnoty v repozitáři nejsou. Jsou jen v `.env` na serveru a v GitHub Secrets.
 
-### Jednorázová příprava serveru
+### Server
 
-Předpoklad: Docker s Compose a běžící [caddy-docker-proxy](https://github.com/lucaslorentz/caddy-docker-proxy) na externí síti `caddy_net`.
+Aplikace běží na stejném Hetzner VPS jako ostatní projekty, za společným Caddy z repa `hetzner-infra-proxy` (caddy-docker-proxy na síti `caddy_net`).
 
-1. **Adresář pro nasazení** (např. `/opt/dota-tournament`) se souborem `.env`:
+- Adresa: **https://dota.tomaskrizek.cz** (A záznam v Cloudflare na IP serveru, bez proxy).
+- Adresář nasazení: `/opt/dota-tournament` s `.env`:
 
-   ```sh
-   APP_NAME="Dota LAN turnaj"
-   APP_DOMAIN=turnaj.example.cz
-   APP_URL=https://turnaj.example.cz
-   APP_KEY=base64:...        # vygeneruj: echo "base64:$(openssl rand -base64 32)"
-   REGISTRATION_CODE=...
-   ADMIN_PASSWORD=...
-   TV_KEY=...
-   ```
+  ```sh
+  APP_NAME="Dota LAN turnaj"
+  APP_DOMAIN=dota.tomaskrizek.cz
+  APP_URL=https://dota.tomaskrizek.cz
+  APP_KEY=base64:...        # echo "base64:$(openssl rand -base64 32)"
+  REGISTRATION_CODE=...
+  ADMIN_PASSWORD=...
+  TV_KEY=...
+  ```
 
-2. **Deploy klíč**: na svém počítači spusť `ssh-keygen -t ed25519 -f deploy_key -N ""`. Obsah `deploy_key.pub` přidej na serveru do `~/.ssh/authorized_keys` uživatele, který smí spouštět `docker` (je ve skupině `docker`).
+  Po změně `.env` stačí na serveru `docker compose up -d`.
+- GitHub Secrets jsou stejné jako u ostatních aplikací na VPS: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (privátní klíč `~/.ssh/hetzner_deploy`). Proměnná repozitáře `DEPLOY_ENABLED=true`.
+- Obraz `ghcr.io/devrosnicka/dota-tournament` je veřejný, server se do registru nepřihlašuje.
 
-3. **GitHub Secrets a proměnná**:
-
-   ```sh
-   gh secret set SSH_HOST --body "server.example.cz"
-   gh secret set SSH_USER --body "deploy"
-   gh secret set SSH_KEY < deploy_key
-   gh secret set DEPLOY_PATH --body "/opt/dota-tournament"
-   gh secret set SSH_PORT --body "22"      # jen pokud SSH neběží na 22
-   gh variable set DEPLOY_ENABLED --body true
-   ```
-
-4. **Viditelnost obrazu**: po prvním běhu CI přepni na GitHubu balíček `dota-tournament` na *Public* (Packages → Package settings → Change visibility). Obraz žádná tajemství neobsahuje. Druhá možnost je `docker login ghcr.io` na serveru.
-
-Deploy pak při každém pushi zkopíruje na server [`compose.prod.yaml`](compose.prod.yaml) (jako `compose.yaml`) a [`backup.sh`](docker/backup.sh), stáhne nový obraz a restartuje kontejner. Migrace se spouští při startu kontejneru.
+Deploy při každém pushi zkopíruje na server [`compose.prod.yaml`](compose.prod.yaml) (jako `compose.yaml`) a [`backup.sh`](docker/backup.sh), stáhne nový obraz a restartuje kontejner. Migrace se spouští při startu kontejneru.
 
 ### Záloha
 
