@@ -1,6 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import { ChevronDown } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { Phase } from '@/types';
@@ -78,17 +79,7 @@ export default function Rules({ rounds, players, format, finalists }: Props) {
             <Head title="Pravidla" />
             <div className="grid grid-cols-1 gap-4">
                 <h1 className="text-2xl font-bold">Pravidla turnaje</h1>
-                <nav className="flex flex-wrap gap-2 text-sm">
-                    {sections.map(([id, label]) => (
-                        <a
-                            key={id}
-                            href={`#${id}`}
-                            className="rounded-full border px-3 py-1 hover:bg-accent"
-                        >
-                            {label}
-                        </a>
-                    ))}
-                </nav>
+                <SectionNav />
 
                 <Section id="prubeh" title="Průběh turnaje">
                     <ol className="grid gap-2">
@@ -355,6 +346,114 @@ export default function Rules({ rounds, players, format, finalists }: Props) {
     );
 }
 
+/** Distance from the top of the viewport where a section counts as current. */
+const SPY_OFFSET = 140;
+
+/**
+ * Section links that stay under the header while scrolling and highlight the
+ * section being read.
+ */
+function SectionNav() {
+    const [active, setActive] = useState<string>(sections[0][0]);
+    const listRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        let frame = 0;
+
+        const update = () => {
+            frame = 0;
+            let current: string = sections[0][0];
+
+            for (const [id] of sections) {
+                const top = document
+                    .getElementById(id)
+                    ?.getBoundingClientRect().top;
+
+                if (top !== undefined && top <= SPY_OFFSET) {
+                    current = id;
+                }
+            }
+
+            const atBottom =
+                window.innerHeight + window.scrollY >=
+                document.documentElement.scrollHeight - 2;
+
+            setActive(atBottom ? sections[sections.length - 1][0] : current);
+        };
+
+        const schedule = () => {
+            if (!frame) {
+                frame = requestAnimationFrame(update);
+            }
+        };
+
+        update();
+        window.addEventListener('scroll', schedule, { passive: true });
+        window.addEventListener('resize', schedule);
+
+        return () => {
+            window.removeEventListener('scroll', schedule);
+            window.removeEventListener('resize', schedule);
+            cancelAnimationFrame(frame);
+        };
+    }, []);
+
+    // Keep the highlighted link visible in the horizontally scrolling list.
+    useEffect(() => {
+        const list = listRef.current;
+        const link = list?.querySelector<HTMLElement>(
+            `[data-section="${active}"]`,
+        );
+
+        if (list && link) {
+            list.scrollTo({
+                left:
+                    link.offsetLeft - (list.clientWidth - link.clientWidth) / 2,
+                behavior: 'smooth',
+            });
+        }
+    }, [active]);
+
+    function jump(event: MouseEvent<HTMLAnchorElement>, id: string) {
+        event.preventDefault();
+        document
+            .getElementById(id)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', `#${id}`);
+        setActive(id);
+    }
+
+    return (
+        <nav
+            aria-label="Sekce pravidel"
+            className="sticky top-14 z-[5] -mx-4 border-b bg-background/95 px-4 py-2 backdrop-blur"
+        >
+            <div
+                ref={listRef}
+                className="flex [scrollbar-width:none] gap-2 overflow-x-auto text-sm [&::-webkit-scrollbar]:hidden"
+            >
+                {sections.map(([id, label]) => (
+                    <a
+                        key={id}
+                        href={`#${id}`}
+                        data-section={id}
+                        aria-current={active === id ? 'location' : undefined}
+                        onClick={(event) => jump(event, id)}
+                        className={cn(
+                            'shrink-0 rounded-full border px-3 py-1 whitespace-nowrap transition-colors',
+                            active === id
+                                ? 'border-primary bg-primary text-primary-foreground'
+                                : 'hover:bg-accent',
+                        )}
+                    >
+                        {label}
+                    </a>
+                ))}
+            </div>
+        </nav>
+    );
+}
+
 function Section({
     id,
     title,
@@ -365,7 +464,7 @@ function Section({
     children: ReactNode;
 }) {
     return (
-        <Card id={id} className="scroll-mt-20">
+        <Card id={id} className="scroll-mt-32">
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
             </CardHeader>
