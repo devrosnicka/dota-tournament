@@ -257,7 +257,7 @@ export default function TournamentFlow({
                             className={cn(
                                 'relative flex size-10 shrink-0 items-center justify-center rounded-full border-2',
                                 now
-                                    ? 'border-primary bg-primary text-primary-foreground ring-4 ring-primary/20'
+                                    ? 'border-primary bg-primary text-primary-foreground shadow-[0_0_18px_-2px_var(--primary)] ring-4 ring-primary/20'
                                     : reached
                                       ? 'border-primary bg-background text-primary'
                                       : 'bg-background text-muted-foreground',

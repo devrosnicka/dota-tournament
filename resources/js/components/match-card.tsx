@@ -43,7 +43,7 @@ export default function MatchCard({
                 {match.winner && (
                     <span
                         className={cn(
-                            'font-medium text-foreground tabular-nums',
+                            'font-display font-semibold text-foreground tabular-nums',
                             tv && 'text-4xl font-bold',
                         )}
                     >
@@ -133,7 +133,7 @@ function Team({
                             'flex items-center gap-1 truncate rounded px-1',
                             tv ? 'text-4xl leading-snug' : 'text-sm',
                             player.id === highlightId &&
-                                'bg-primary font-semibold text-primary-foreground',
+                                'bg-primary/25 font-semibold text-foreground',
                         )}
                     >
                         <span className="truncate">{player.nick}</span>

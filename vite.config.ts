@@ -18,6 +18,11 @@ export default defineConfig({
                     // latin-ext carries Czech letters like ě, š, č, ř, ž, ů.
                     subsets: ['latin', 'latin-ext'],
                 }),
+                // Angular display face for headings, labels and numbers.
+                bunny('Chakra Petch', {
+                    weights: [500, 600, 700],
+                    subsets: ['latin', 'latin-ext'],
+                }),
             ],
         }),
         inertia(),

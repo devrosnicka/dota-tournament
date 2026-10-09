@@ -19,7 +19,7 @@ export default function SeriesBoard({ final, size = 'default' }: Props) {
         <div className={cn('grid gap-3', tv && 'gap-6')}>
             <div
                 className={cn(
-                    'flex items-center justify-center gap-4 font-bold tabular-nums',
+                    'flex items-center justify-center gap-4 font-display font-bold tabular-nums',
                     tv ? 'text-7xl' : 'text-3xl',
                 )}
             >

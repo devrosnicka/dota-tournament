@@ -1,7 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { Menu } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { Badge } from '@/components/ui/badge';
+import Brand, { PhaseBadge } from '@/components/brand';
 import { Button } from '@/components/ui/button';
 import {
     Sheet,
@@ -54,15 +54,13 @@ export default function PlayerLayout({ children }: { children: ReactNode }) {
     ];
 
     return (
-        <div className="flex min-h-svh flex-col bg-background">
-            <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
+        <div className="flex min-h-svh flex-col">
+            <header className="hud-line sticky top-0 z-10 bg-background/80 backdrop-blur">
                 <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-4">
-                    <Link href={home()} className="truncate font-semibold">
-                        {name}
+                    <Link href={home()} className="min-w-0">
+                        <Brand name={name} />
                     </Link>
-                    <Badge variant="secondary" className="ml-auto">
-                        {phase.label}
-                    </Badge>
+                    <PhaseBadge label={phase.label} className="ml-auto" />
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button

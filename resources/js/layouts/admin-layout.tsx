@@ -1,6 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
-import { Badge } from '@/components/ui/badge';
+import { PhaseBadge } from '@/components/brand';
 import { Button } from '@/components/ui/button';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 import { cn } from '@/lib/utils';
@@ -33,13 +33,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     ];
 
     return (
-        <div className="flex min-h-svh flex-col bg-muted/40">
-            <header className="border-b bg-background">
+        <div className="flex min-h-svh flex-col">
+            <header className="hud-line bg-background/80 backdrop-blur">
                 <div className="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4">
-                    <Link href={dashboard()} className="font-semibold">
+                    <Link
+                        href={dashboard()}
+                        className="font-display font-bold tracking-[0.12em] uppercase"
+                    >
                         Administrace
                     </Link>
-                    <Badge variant="secondary">{phase.label}</Badge>
+                    <PhaseBadge label={phase.label} />
                     <div className="ml-auto flex items-center gap-1">
                         {auth.player && (
                             <Button variant="ghost" size="sm" asChild>
@@ -63,7 +66,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                             className={cn(
                                 'rounded-md px-3 py-1.5 text-sm whitespace-nowrap hover:bg-accent',
                                 currentUrl.split('?')[0] === link.href.url &&
-                                    'bg-accent font-medium',
+                                    'bg-primary/25 font-medium text-foreground',
                             )}
                         >
                             {link.label}
