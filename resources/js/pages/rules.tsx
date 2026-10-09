@@ -151,21 +151,37 @@ export default function Rules({ rounds, players, format, finalists }: Props) {
                         </li>
                         <li>
                             <strong>Rozdíl killů</strong> je součet (killy tvého
-                            týmu − killy soupeře) přes všechny tvoje zápasy.
+                            týmu − killy soupeře) přes všechny tvoje zápasy. Do
+                            bodů se nepočítá, rozhoduje jen při shodě bodů.
                         </li>
                     </ul>
                 </Section>
 
                 <Section id="tabulka" title="Tabulka a shody">
+                    <p>Pořadí v tabulce určuje:</p>
+                    <ol className="list-decimal space-y-1 pl-5">
+                        <li>
+                            <strong>body</strong>,
+                        </li>
+                        <li>
+                            při shodě bodů <strong>rozdíl killů</strong>,
+                        </li>
+                        <li>
+                            při shodě i v killech <strong>nasazení</strong>{' '}
+                            (lepší nasazení je výš).
+                        </li>
+                    </ol>
                     <p>
-                        Pořadí určují body, při shodě rozdíl killů a pak
-                        nasazení. Do finále postupuje{' '}
+                        Do finále postupuje{' '}
                         <strong>{finalists} nejlepších</strong> aktivních hráčů.
+                        Kdo odstoupil, zůstává v tabulce se svými body, ale do
+                        pořadí pro postup se nepočítá.
                     </p>
                     <p>
-                        Jediná výjimka je shoda přímo na hranici postupu (10. a
-                        11. místo). Tu rozhodne <strong>rozstřel 1v1</strong> se
-                        Shadow Fiendem v módu 1v1 Solo Mid. Rozstřel určí, kdo
+                        Jediná výjimka: když se přímo na hranici postupu (10. a
+                        11. místo) shodují body i rozdíl killů, nerozhodne
+                        nasazení, ale <strong>rozstřel 1v1</strong> se Shadow
+                        Fiendem v módu 1v1 Solo Mid. Rozstřel určí, kdo
                         postupuje, a pořadí mezi postupujícími dál řídí
                         nasazení.
                     </p>

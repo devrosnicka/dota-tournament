@@ -2,6 +2,7 @@ import {
     ArrowDown,
     CalendarDays,
     Check,
+    ChevronRight,
     Crown,
     EyeOff,
     GripVertical,
@@ -36,6 +37,9 @@ type Step = {
     text: string;
     visual: ReactNode;
 };
+
+/** What orders the group stage table, strongest criterion first. */
+const standingsKey = ['body', 'rozdíl killů', 'nasazení'];
 
 /** Pick order of the final draft, A is the captain with the first pick. */
 const snake = ['A', 'B', 'B', 'A', 'A', 'B', 'B', 'A'] as const;
@@ -122,14 +126,42 @@ export default function TournamentFlow({
             value: 'group_stage',
             label: 'Základní část',
             icon: Shuffle,
-            text: `Odehraješ ${rounds} ${roundsWord(rounds)}, pokaždé v jinak namíchaném týmu. Body sbíráš sám za sebe.`,
+            text: `Odehraješ ${rounds} ${roundsWord(rounds)}, pokaždé v jinak namíchaném týmu. Body sbíráš sám za sebe a do finále postupuje ${finalists} nejlepších.`,
             visual: (
-                <div className="flex flex-wrap gap-1.5">
-                    <Chip className="border-primary bg-primary font-semibold text-primary-foreground">
-                        výhra +1
-                    </Chip>
-                    <Chip>sezení +0,5</Chip>
-                    <Chip className="text-muted-foreground">prohra 0</Chip>
+                <div className="grid gap-2">
+                    <div className="flex flex-wrap gap-1.5">
+                        <Chip className="border-primary bg-primary font-semibold text-primary-foreground">
+                            výhra +1
+                        </Chip>
+                        <Chip>sezení +0,5</Chip>
+                        <Chip className="text-muted-foreground">prohra 0</Chip>
+                    </div>
+                    <div className="grid gap-1">
+                        <span className="text-xs text-muted-foreground">
+                            Pořadí v tabulce
+                        </span>
+                        <ol className="flex flex-wrap items-center gap-1">
+                            {standingsKey.map((key, index) => (
+                                <li
+                                    key={key}
+                                    className="flex items-center gap-1"
+                                >
+                                    {index > 0 && (
+                                        <ChevronRight
+                                            aria-hidden
+                                            className="size-3 text-muted-foreground"
+                                        />
+                                    )}
+                                    <Chip>{key}</Chip>
+                                </li>
+                            ))}
+                        </ol>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        Killy se do bodů nepočítají, rozhodují jen při shodě.
+                        Když se na hranici postupu shodují body i killy,
+                        rozhodne rozstřel 1v1.
+                    </p>
                 </div>
             ),
         },
@@ -137,7 +169,7 @@ export default function TournamentFlow({
             value: 'final_draft',
             label: 'Draft finále',
             icon: Users,
-            text: `Postupuje ${finalists} nejlepších. První dva jsou kapitáni a hadově si vybírají spoluhráče.`,
+            text: 'Kapitáni jsou první dva z tabulky a hadově si vybírají spoluhráče z postupujících.',
             visual: (
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                     <ol aria-label="Pořadí výběru" className="flex gap-1">
