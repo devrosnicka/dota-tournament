@@ -19,13 +19,16 @@ import type { ReactNode } from 'react';
 import { roundsWord } from '@/lib/format';
 import { isAtLeast } from '@/lib/phase';
 import { cn } from '@/lib/utils';
-import type { Phase } from '@/types';
+import type { Phase, RoundFormat } from '@/types';
 
 type Props = {
     /** The phase the tournament is in now. */
     current: Phase;
     rounds: number;
     finalists: number;
+    /** Active players now and the round format they give, if playable. */
+    players: number;
+    format: RoundFormat | null;
     /** Ids of rules sections with the details of a phase, shown as links. */
     details?: Partial<Record<Phase, string>>;
 };
@@ -37,6 +40,13 @@ type Step = {
     text: string;
     visual: ReactNode;
 };
+
+/** Round format by the number of active players (SPEC §1.3). */
+const formats = [
+    ['10–11', '5v5'],
+    ['12–15', '3v3'],
+    ['16', '4v4'],
+];
 
 /** What orders the group stage table, strongest criterion first. */
 const standingsKey = ['body', 'rozdíl killů', 'nasazení'];
@@ -52,6 +62,8 @@ export default function TournamentFlow({
     current,
     rounds,
     finalists,
+    players,
+    format,
     details = {},
 }: Props) {
     const steps: Step[] = [
@@ -126,9 +138,36 @@ export default function TournamentFlow({
             value: 'group_stage',
             label: 'Základní část',
             icon: Shuffle,
-            text: `Odehraješ ${rounds} ${roundsWord(rounds)}, pokaždé v jinak namíchaném týmu. Body sbíráš sám za sebe a do finále postupuje ${finalists} nejlepších.`,
+            text: `Odehraješ ${rounds} ${roundsWord(rounds)}${format ? ` ve formátu ${format.name}` : ''}, pokaždé v jinak namíchaném týmu. Body sbíráš sám za sebe a do finále postupuje ${finalists} nejlepších.`,
             visual: (
                 <div className="grid gap-2">
+                    {format ? (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground">
+                                Kolo při {players} hráčích:
+                            </span>
+                            <Chip className="font-semibold">
+                                {format.matches}× {format.name}
+                            </Chip>
+                            {format.sitting > 0 && (
+                                <Chip>{format.sitting} sedí</Chip>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground">
+                                Formát podle počtu hráčů:
+                            </span>
+                            {formats.map(([count, name]) => (
+                                <Chip key={count}>
+                                    <span className="text-muted-foreground">
+                                        {count}
+                                    </span>
+                                    {name}
+                                </Chip>
+                            ))}
+                        </div>
+                    )}
                     <div className="flex flex-wrap gap-1.5">
                         <Chip className="border-primary bg-primary font-semibold text-primary-foreground">
                             výhra +1

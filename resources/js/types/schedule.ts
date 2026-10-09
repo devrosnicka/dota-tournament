@@ -18,3 +18,6 @@ export type ScheduleRound = {
     sitters: SchedulePlayer[];
     matches: ScheduleMatch[];
 };
+
+/** Shape of a group stage round for some number of active players. */
+export type RoundFormat = { name: string; matches: number; sitting: number };

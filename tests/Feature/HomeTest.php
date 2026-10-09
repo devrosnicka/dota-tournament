@@ -57,14 +57,20 @@ it('shows guests the tournament flow', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->component('how-it-works')
             ->where('phase.value', 'registration')
+            ->where('players', 0)
+            ->where('format', null)
             ->where('rounds', 5)
             ->where('finalists', 10)
             ->where('registrationOpen', true));
 
+    Player::factory()->count(13)->create();
     setPhase(Phase::GroupStage);
 
     $this->get('/how-it-works')
-        ->assertInertia(fn (Assert $page) => $page->where('registrationOpen', false));
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('players', 13)
+            ->where('format', ['name' => '3v3', 'matches' => 2, 'sitting' => 1])
+            ->where('registrationOpen', false));
 });
 
 it('sends players from the tournament flow to the full rules', function () {

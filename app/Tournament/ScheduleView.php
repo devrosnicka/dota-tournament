@@ -2,6 +2,7 @@
 
 namespace App\Tournament;
 
+use App\Domain\Schedule\FormatResolver;
 use App\Domain\Schedule\ScheduleAnalysis;
 use App\Domain\Schedule\ScheduleAnalyzer;
 use App\Enums\Side;
@@ -9,6 +10,7 @@ use App\Models\GameMatch;
 use App\Models\Player;
 use App\Models\Round;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
 
 /**
  * Turns the stored schedule into page props. Seeds are included only for
@@ -17,6 +19,23 @@ use Illuminate\Support\Collection;
 final class ScheduleView
 {
     public function __construct(private readonly Schedule $schedule) {}
+
+    /**
+     * Format of a round for the given number of active players, null when
+     * the tournament cannot be played with that many.
+     *
+     * @return array{name: string, matches: int, sitting: int}|null
+     */
+    public function format(int $players): ?array
+    {
+        try {
+            $format = (new FormatResolver)->resolve($players);
+        } catch (InvalidArgumentException) {
+            return null;
+        }
+
+        return ['name' => $format->name(), 'matches' => $format->matches, 'sitting' => $format->sitting()];
+    }
 
     /**
      * @return list<array<string, mixed>>

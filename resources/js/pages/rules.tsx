@@ -6,11 +6,12 @@ import TournamentFlow from '@/components/tournament-flow';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { roundsWord } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import type { RoundFormat } from '@/types';
 
 type Props = {
     rounds: number;
     players: number;
-    format: { name: string; matches: number; sitting: number } | null;
+    format: RoundFormat | null;
     finalists: number;
 };
 
@@ -49,6 +50,8 @@ export default function Rules({ rounds, players, format, finalists }: Props) {
                         current={phase.value}
                         rounds={rounds}
                         finalists={finalists}
+                        players={players}
+                        format={format}
                         details={{
                             ranking: 'hodnoceni',
                             schedule_review: 'zakladni-cast',

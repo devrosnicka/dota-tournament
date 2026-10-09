@@ -4,15 +4,20 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { roundsWord } from '@/lib/format';
 import { login, register } from '@/routes';
+import type { RoundFormat } from '@/types';
 
 type Props = {
     rounds: number;
+    players: number;
+    format: RoundFormat | null;
     finalists: number;
     registrationOpen: boolean;
 };
 
 export default function HowItWorks({
     rounds,
+    players,
+    format,
     finalists,
     registrationOpen,
 }: Props) {
@@ -25,9 +30,10 @@ export default function HowItWorks({
                 <div className="grid gap-2">
                     <h1 className="text-2xl font-bold">Jak turnaj probíhá</h1>
                     <p className="leading-relaxed text-muted-foreground">
-                        V základní části odehraješ {rounds} {roundsWord(rounds)}{' '}
-                        v pokaždé jinak namíchaných týmech a body sbíráš sám za
-                        sebe. {finalists} nejlepších se pak utká ve finále 5v5.
+                        V základní části odehraješ {rounds} {roundsWord(rounds)}
+                        {format && ` ve formátu ${format.name}`}, pokaždé v
+                        jinak namíchaných týmech, a body sbíráš sám za sebe.{' '}
+                        {finalists} nejlepších se pak utká ve finále 5v5.
                     </p>
                 </div>
 
@@ -37,6 +43,8 @@ export default function HowItWorks({
                             current={phase.value}
                             rounds={rounds}
                             finalists={finalists}
+                            players={players}
+                            format={format}
                         />
                     </CardContent>
                 </Card>
