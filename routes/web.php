@@ -51,6 +51,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
         Route::post('phase/advance', [Admin\PhaseController::class, 'advance'])->name('phase.advance');
         Route::post('phase/revert', [Admin\PhaseController::class, 'revert'])->name('phase.revert');
+        Route::post('reset', Admin\ResetController::class)->name('reset');
 
         Route::get('players', [Admin\PlayerController::class, 'index'])->name('players.index');
         Route::patch('players/{player}', [Admin\PlayerController::class, 'update'])->name('players.update');

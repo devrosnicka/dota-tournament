@@ -11,6 +11,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { reset } from '@/routes/admin';
 import { advance, revert } from '@/routes/admin/phase';
 import { index as players } from '@/routes/admin/players';
 import type { PhaseInfo } from '@/types';
@@ -136,6 +137,34 @@ export default function Dashboard({
                         <Button variant="outline" asChild>
                             <Link href={players()}>Správa hráčů</Link>
                         </Button>
+                    </CardContent>
+                </Card>
+
+                <Card className="md:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Restart turnaje</CardTitle>
+                        <CardDescription>
+                            Smaže hráče, hodnocení, rozpis, výsledky, finále,
+                            nastavení i audit log a turnaj začne znovu
+                            registrací. Hodí se po zkušebním kole.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ConfirmDialog
+                            trigger={
+                                <Button
+                                    variant="outline"
+                                    className="text-destructive"
+                                >
+                                    Smazat turnaj a začít znovu
+                                </Button>
+                            }
+                            title="Smazat celý turnaj?"
+                            description="Všichni hráči se odhlásí a o všechna data turnaje přijdeš. Vrátit to jde jen ze zálohy na serveru."
+                            confirmLabel="Smazat vše"
+                            destructive
+                            onConfirm={() => router.visit(reset())}
+                        />
                     </CardContent>
                 </Card>
             </div>

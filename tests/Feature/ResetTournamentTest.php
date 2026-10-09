@@ -1,22 +1,20 @@
 <?php
 
-use App\Console\Commands\ResetTournament;
 use App\Enums\Phase;
 use App\Models\AuditLog;
 use App\Models\Player;
+use App\Tournament\TournamentReset;
 use App\Tournament\TournamentSettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-it('deletes the whole tournament and reopens registration', function () {
+it('lets the admin delete the whole tournament and reopen registration', function () {
     startFinal();
     completeDraft();
 
-    $this->artisan('tournament:reset')
-        ->expectsConfirmation('Opravdu smazat celý turnaj?', 'yes')
-        ->assertSuccessful();
+    asAdmin()->post('/admin/reset')->assertRedirect('/admin');
 
-    foreach (ResetTournament::TABLES as $table) {
+    foreach (TournamentReset::TABLES as $table) {
         $expected = $table === 'audit_log' ? 1 : 0;
         expect(DB::table($table)->count())->toBe($expected, "Table {$table} is not empty");
     }
@@ -37,13 +35,13 @@ it('covers every table with tournament data', function () {
         ->values()
         ->all();
 
-    expect($tables)->toBe(collect(ResetTournament::TABLES)->sort()->values()->all());
+    expect($tables)->toBe(collect(TournamentReset::TABLES)->sort()->values()->all());
 });
 
 it('logs out players from before the reset', function () {
     $old = Player::factory()->create();
 
-    $this->artisan('tournament:reset', ['--force' => true])->assertSuccessful();
+    asAdmin()->post('/admin/reset');
 
     // A new player must not inherit the id still in the old session cookie.
     $new = Player::factory()->create();
@@ -54,14 +52,11 @@ it('logs out players from before the reset', function () {
         ->assertRedirect('/register');
 });
 
-it('keeps everything when not confirmed', function () {
-    Player::factory()->count(3)->create();
-    setPhase(Phase::GroupStage);
+it('lets only the admin reset the tournament', function () {
+    $player = Player::factory()->create();
 
-    $this->artisan('tournament:reset')
-        ->expectsConfirmation('Opravdu smazat celý turnaj?', 'no')
-        ->assertFailed();
+    $this->post('/admin/reset')->assertRedirect('/admin/login');
+    $this->actingAs($player)->post('/admin/reset')->assertRedirect('/admin/login');
 
-    expect(Player::query()->count())->toBe(3)
-        ->and(app(TournamentSettings::class)->phase())->toBe(Phase::GroupStage);
+    expect(Player::query()->count())->toBe(1);
 });
