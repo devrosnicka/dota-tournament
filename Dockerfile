@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM dunglas/frankenphp:1-php8.4-trixie AS base
+FROM dunglas/frankenphp:1-php8.4.27-trixie AS base
 
 RUN install-php-extensions pdo_sqlite intl zip opcache pcntl bcmath \
     && apt-get update \
