@@ -32,6 +32,13 @@ class HomeController extends Controller
                 ? ['submitted' => $rankings->savedOrder($player) !== null]
                 : null,
             'groupStage' => $phase === Phase::GroupStage ? $this->groupStage($player, $results, $standings) : null,
+            // Once the group stage starts, everyone is in the schedule and the table.
+            'players' => $phase->isAtLeast(Phase::GroupStage) ? null : Player::query()
+                ->active()
+                ->orderBy('created_at')
+                ->orderBy('id')
+                ->pluck('nick')
+                ->all(),
         ]);
     }
 

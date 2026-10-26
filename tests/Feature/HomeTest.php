@@ -78,3 +78,18 @@ it('sends players from the tournament flow to the full rules', function () {
         ->get('/how-it-works')
         ->assertRedirect('/rules');
 });
+
+it('shows players who else has registered until the group stage starts', function () {
+    $puck = Player::factory()->create(['nick' => 'Puck']);
+    Player::factory()->create(['nick' => 'Axe']);
+
+    $this->actingAs($puck)
+        ->get('/')
+        ->assertInertia(fn (Assert $page) => $page->where('players', ['Puck', 'Axe']));
+
+    setPhase(Phase::GroupStage);
+
+    $this->actingAs($puck)
+        ->get('/')
+        ->assertInertia(fn (Assert $page) => $page->where('players', null));
+});

@@ -1,9 +1,10 @@
 import { Head, Link, usePage, usePoll } from '@inertiajs/react';
-import { Trophy } from 'lucide-react';
+import { BookOpen, Trophy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatPoints } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import {
     final as finalPage,
     ranking as rankingPage,
@@ -45,12 +46,13 @@ type GroupStage = {
 type Props = {
     ranking: { submitted: boolean } | null;
     groupStage: GroupStage | null;
+    players: string[] | null;
 };
 
-export default function Home({ ranking, groupStage }: Props) {
+export default function Home({ ranking, groupStage, players }: Props) {
     const { phase, auth } = usePage().props;
 
-    usePoll(10_000, {}, { autoStart: groupStage !== null });
+    usePoll(10_000, {}, { autoStart: groupStage !== null || players !== null });
 
     return (
         <>
@@ -103,14 +105,43 @@ export default function Home({ ranking, groupStage }: Props) {
                     </CardContent>
                 </Card>
                 {groupStage && <GroupStageCard groupStage={groupStage} />}
-                <Link
-                    href={rules()}
-                    className="text-center text-sm text-muted-foreground underline underline-offset-4"
-                >
-                    Jak turnaj funguje? Pravidla a FAQ
-                </Link>
+                {players && (
+                    <PlayersCard players={players} me={auth.player?.nick} />
+                )}
+                <Button asChild variant="outline" size="lg">
+                    <Link href={rules()}>
+                        <BookOpen />
+                        Jak turnaj probíhá? Pravidla a FAQ
+                    </Link>
+                </Button>
             </div>
         </>
+    );
+}
+
+function PlayersCard({ players, me }: { players: string[]; me?: string }) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Hráči ({players.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ol className="flex flex-wrap gap-2">
+                    {players.map((nick) => (
+                        <li
+                            key={nick}
+                            className={cn(
+                                'rounded-md border px-2.5 py-1 text-sm',
+                                nick === me &&
+                                    'border-primary/60 font-semibold text-primary',
+                            )}
+                        >
+                            {nick}
+                        </li>
+                    ))}
+                </ol>
+            </CardContent>
+        </Card>
     );
 }
 

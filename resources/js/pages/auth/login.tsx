@@ -1,4 +1,5 @@
 import { Form, Head, Link } from '@inertiajs/react';
+import { BookOpen } from 'lucide-react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,6 +52,13 @@ export default function Login({
                 )}
             </Form>
 
+            <Button asChild variant="outline" size="lg">
+                <Link href={howItWorks()}>
+                    <BookOpen />
+                    Jak turnaj probíhá?
+                </Link>
+            </Button>
+
             <div className="grid gap-1 text-center text-sm text-muted-foreground">
                 {registrationOpen && (
                     <p>
@@ -63,12 +71,6 @@ export default function Login({
                         </Link>
                     </p>
                 )}
-                <Link
-                    href={howItWorks()}
-                    className="underline underline-offset-4"
-                >
-                    Jak turnaj probíhá?
-                </Link>
                 <Link
                     href={adminLogin()}
                     className="text-xs underline-offset-4 hover:underline"
