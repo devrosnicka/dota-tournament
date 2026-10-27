@@ -35,14 +35,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return (
         <div className="flex min-h-svh flex-col">
             <header className="hud-line bg-background/80 backdrop-blur">
-                <div className="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4">
+                <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 sm:h-14 sm:flex-nowrap sm:py-0">
                     <Link
                         href={dashboard()}
                         className="font-display font-bold tracking-[0.12em] uppercase"
                     >
                         Administrace
                     </Link>
-                    <PhaseBadge label={phase.label} />
+                    {/* On phones the phase gets its own row, it does not fit next to the buttons. */}
+                    <div className="order-last basis-full sm:order-none sm:basis-auto">
+                        <PhaseBadge label={phase.label} />
+                    </div>
                     <div className="ml-auto flex items-center gap-1">
                         {auth.player && (
                             <Button variant="ghost" size="sm" asChild>

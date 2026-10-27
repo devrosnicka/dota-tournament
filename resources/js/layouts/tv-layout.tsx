@@ -16,7 +16,7 @@ export default function TvLayout({ children }: { children: ReactNode }) {
                 </h1>
                 <PhaseBadge
                     label={phase.label}
-                    className="gap-3 px-4 py-1.5 text-2xl [&>span]:size-3"
+                    className="gap-3 px-4 py-1.5 text-2xl [&>span:first-child]:size-3"
                 />
             </header>
             <main className="px-10 pb-10">{children}</main>

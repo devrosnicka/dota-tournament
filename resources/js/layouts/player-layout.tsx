@@ -56,17 +56,21 @@ export default function PlayerLayout({ children }: { children: ReactNode }) {
     return (
         <div className="flex min-h-svh flex-col">
             <header className="hud-line sticky top-0 z-10 bg-background/80 backdrop-blur">
-                <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-4">
+                <div className="mx-auto flex max-w-2xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 sm:h-14 sm:flex-nowrap sm:py-0">
                     <Link href={home()} className="min-w-0">
                         <Brand name={name} />
                     </Link>
-                    <PhaseBadge label={phase.label} className="ml-auto" />
+                    {/* On phones the phase gets its own row, it does not fit next to the name. */}
+                    <div className="order-last basis-full sm:order-none sm:ml-auto sm:basis-auto">
+                        <PhaseBadge label={phase.label} />
+                    </div>
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 aria-label="Menu"
+                                className="ml-auto sm:ml-0"
                             >
                                 <Menu />
                             </Button>

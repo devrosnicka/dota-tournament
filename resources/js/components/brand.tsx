@@ -28,7 +28,7 @@ export default function Brand({
 }
 
 /**
- * The current tournament phase with a live dot.
+ * The current tournament phase with a live dot, e.g. "Právě probíhá: Registrace".
  */
 export function PhaseBadge({
     label,
@@ -40,6 +40,9 @@ export function PhaseBadge({
     return (
         <Badge variant="secondary" className={cn('gap-1.5', className)}>
             <span className="size-1.5 rounded-full bg-gold shadow-[0_0_6px_var(--gold)] motion-safe:animate-pulse" />
+            <span className="font-medium text-muted-foreground">
+                Právě probíhá:
+            </span>
             {label}
         </Badge>
     );

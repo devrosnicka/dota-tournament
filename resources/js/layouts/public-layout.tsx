@@ -14,9 +14,9 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
     return (
         <div className="flex min-h-svh flex-col">
             <header className="hud-line bg-background/80 backdrop-blur">
-                <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-4">
+                <div className="mx-auto flex max-w-2xl flex-col gap-1.5 px-4 py-3 sm:h-14 sm:flex-row sm:items-center sm:gap-3 sm:py-0">
                     <Brand name={name} />
-                    <PhaseBadge label={phase.label} className="ml-auto" />
+                    <PhaseBadge label={phase.label} className="sm:ml-auto" />
                 </div>
             </header>
             <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
